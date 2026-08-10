@@ -1,5 +1,8 @@
 services:
   stats-server:
+    build:
+      context: ./stats-server
+      dockerfile: Dockerfile
     ports:
       - "9090:9090"
 
@@ -7,6 +10,9 @@ services:
     image: postgres:16.1
 
   ewm-service:
+    build:
+      context: ./main-service
+      dockerfile: Dockerfile
     ports:
       - "8080:8080"
 

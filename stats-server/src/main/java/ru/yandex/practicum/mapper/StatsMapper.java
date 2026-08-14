@@ -7,25 +7,13 @@ import ru.yandex.practicum.model.StatsRow;
 
 public class StatsMapper {
     public EndpointHit endpointHitFromDto(EndpointHitDto dto) {
-        EndpointHit endpointHit = new EndpointHit();
-        endpointHit.setId(dto.getId());
-        endpointHit.setIp(dto.getIp());
-        endpointHit.setUri(dto.getUri());
-        endpointHit.setApp(dto.getApp());
-        endpointHit.setTimestamp(dto.getTimestamp());
-
-        return endpointHit;
+        return new EndpointHit(dto.getApp(), dto.getUri(),
+                dto.getIp(), dto.getTimestamp());
     }
 
     public EndpointHitDto endpointHitToDto(EndpointHit endpointHit) {
-        EndpointHitDto dto = new EndpointHitDto();
-        dto.setApp(endpointHit.getApp());
-        dto.setUri(endpointHit.getUri());
-        dto.setIp(endpointHit.getIp());
-        dto.setId(endpointHit.getId());
-        dto.setTimestamp(endpointHit.getTimestamp());
-
-        return dto;
+       return new EndpointHitDto(endpointHit.getApp(), endpointHit.getUri(), endpointHit.getIp(),
+               endpointHit.getTimestamp());
     }
 
     public static ViewStats toViewStats(StatsRow row) {

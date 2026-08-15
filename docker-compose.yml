@@ -53,4 +53,4 @@ services:
       stats-server:
         condition: service_started
     ports:
-      - "9090:9090"
+      - "8080:8080"

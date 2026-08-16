@@ -1,6 +1,5 @@
 package ru.yandex.practicum.client.controller;
-
-import javax.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.validation.annotation.Validated;
@@ -26,7 +25,7 @@ public class StatsController {
     public List<ViewStats> findAllStats(
             @RequestParam
             @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-            @NotNull(message = "дата начала должна быть указанна") LocalDateTime start,
+            @jakarta.validation.constraints.NotNull(message = "дата начала должна быть указанна") LocalDateTime start,
 
             @RequestParam
             @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")

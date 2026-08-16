@@ -1,5 +1,6 @@
 package ru.yandex.practicum.client.controller;
 
+import javax.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.validation.annotation.Validated;
@@ -11,7 +12,6 @@ import org.springframework.web.bind.annotation.RestController;
 import ru.yandex.practicum.ViewStats;
 import ru.yandex.practicum.client.StatsClient;
 
-import jakarta.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 import java.util.List;
 

@@ -13,7 +13,6 @@
         <module>stats-server</module>
         <module>stats-client</module>
         <module>stats-dto</module>
-        <module>main-service</module>
         <module>evm-service</module>
     </modules>
 

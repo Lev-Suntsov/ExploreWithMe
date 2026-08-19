@@ -46,7 +46,7 @@ services:
 
   ewm-service:
     build:
-      context: ./ewm-service
+      context: ./evm-service  # ИСПРАВЛЕНО: Теперь путь ведет в реальную папку evm-service (с буквой V)
       dockerfile: Dockerfile
     container_name: ewm-service
     depends_on:
@@ -61,4 +61,3 @@ services:
       SPRING_DATASOURCE_USERNAME: postgres
       SPRING_DATASOURCE_PASSWORD: diplom
       STATS_SERVER_URL: http://stats-server:9090
-

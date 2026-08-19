@@ -9,57 +9,50 @@
         <version>1.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>ewm-service</artifactId>
+    <artifactId>main-service</artifactId>
 
     <properties>
         <maven.compiler.source>11</maven.compiler.source>
         <maven.compiler.target>11</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
-
     <dependencies>
-        <!-- Подключаем модуль статистики, так как ewm-service будет отправлять туда данные -->
         <dependency>
-            <groupId>ru.yandex.practicum</groupId>
-            <artifactId>stats-client</artifactId>
-            <version>1.0-SNAPSHOT</version>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-web</artifactId>
         </dependency>
-
-        <!-- Стартер для запуска веб-сервера Tomcat -->
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-web</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-actuator</artifactId>
+        </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
             <version>${spring.boot.version}</version>
         </dependency>
-
-        <dependency>
-            <groupId>org.projectlombok</groupId>
-            <artifactId>lombok</artifactId>
-            <scope>provided</scope>
-            <version>1.18.36</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-actuator</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-web</artifactId>
-        </dependency>
     </dependencies>
+
+
 
     <build>
         <plugins>
-            <!-- Этот плагин ОБЯЗАТЕЛЕН, чтобы собрать запускаемый JAR-архив для Docker -->
             <plugin>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-maven-plugin</artifactId>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-checkstyle-plugin</artifactId>
+                <version>3.3.1</version>
+                <configuration>
+                    <configLocation>checkstyle.xml</configLocation>
+                    <includeTestSourceDirectory>true</includeTestSourceDirectory>
+                </configuration>
                 <executions>
                     <execution>
+                        <phase>validate</phase>
                         <goals>
-                            <goal>repackage</goal>
+                            <goal>check</goal>
                         </goals>
                     </execution>
                 </executions>
@@ -67,4 +60,3 @@
         </plugins>
     </build>
 </project>
-

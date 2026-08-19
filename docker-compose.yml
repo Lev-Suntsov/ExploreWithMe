@@ -46,7 +46,7 @@ services:
 
   ewm-service:
     build:
-      context: ./evm-service  # ИСПРАВЛЕНО: Теперь путь ведет в реальную папку evm-service (с буквой V)
+      context: ./evm-service
       dockerfile: Dockerfile
     container_name: ewm-service
     depends_on:
@@ -61,3 +61,6 @@ services:
       SPRING_DATASOURCE_USERNAME: postgres
       SPRING_DATASOURCE_PASSWORD: diplom
       STATS_SERVER_URL: http://stats-server:9090
+    # ДОБАВЬТЕ ЭТУ СТРОКУ СТРОГО СЮДА:
+    command: [ "./wait-for-it.sh", "stats-server:9090", "--", "java", "-jar", "app.jar" ]
+  

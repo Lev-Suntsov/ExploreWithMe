@@ -7,9 +7,4 @@ jobs:
   build:
     uses: yandex-praktikum/java-explore-with-me/.github/workflows/api-tests.yml@ci
       
-      # Добавьте этот блок в самый конец файла api-tests.yml:
-            - name: Print Container Logs on Failure
-            if: always() # Этот шаг выполнится ВСЕГДА, даже если тесты упали
-            run: |
-              docker logs stats-server
-              docker logs ewm-service
+

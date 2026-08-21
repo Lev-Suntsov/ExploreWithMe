@@ -17,7 +17,7 @@ public class StatsServiceImpl implements StatsService {
 
     StatsRepository repository;
 
-    public EndpointHitDto saveHit(EndpointHitDto endpointHitDto){
+    public EndpointHitDto saveHit(EndpointHitDto endpointHitDto) {
         return StatsMapper.endpointHitToDto(repository.save(StatsMapper.endpointHitFromDto(endpointHitDto)));
     }
 

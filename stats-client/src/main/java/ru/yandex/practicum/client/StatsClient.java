@@ -1,6 +1,7 @@
 package ru.yandex.practicum.client;
 
 import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import ru.yandex.practicum.ViewStats;
 
@@ -9,7 +10,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.Collections;
 import java.util.List;
 
-
+@Service
 public class StatsClient extends BaseClient {
 
     private static final DateTimeFormatter FORMATTER =

@@ -62,5 +62,5 @@ services:
       SPRING_DATASOURCE_PASSWORD: diplom
       STATS_SERVER_URL: http://stats-server:9090
     # ДОБАВЬТЕ ЭТУ СТРОКУ СТРОГО СЮДА:
-    command: [ "./wait-for-it.sh", "stats-server:9090", "--", "java", "-jar", "app.jar" ]
-  
+    command: [ "./wait-for-it.sh", "stats-server:9090", "java", "-jar", "app.jar" ]
+

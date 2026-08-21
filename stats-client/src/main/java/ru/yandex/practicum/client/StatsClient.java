@@ -17,7 +17,6 @@ public class StatsClient extends BaseClient {
     private static final DateTimeFormatter FORMATTER =
             DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
-    // Импортируйте: import org.springframework.boot.web.client.RestTemplateBuilder;
     public StatsClient(@Value("${STATS_SERVER_URL:http://stats-server:9090}") String serverUrl, RestTemplateBuilder builder) {
         super(serverUrl, builder.build());
     }

@@ -1,4 +1,5 @@
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.client.RestTemplate;
@@ -14,7 +15,7 @@ public class ClientConfig {
 
     @Bean
     public StatsClient statsClient(
-            RestTemplate restTemplate,
+            RestTemplateBuilder restTemplate,
             @Value("${stats-server.url}") String statsServerUrl) {
 
         return new StatsClient(statsServerUrl, restTemplate);

@@ -2,6 +2,7 @@ package ru.yandex.practicum.service;
 
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.EndpointHitDto;
 import ru.yandex.practicum.ViewStats;
 import ru.yandex.practicum.mapper.StatsMapper;
 import ru.yandex.practicum.repository.StatsRepository;
@@ -15,6 +16,10 @@ import java.util.stream.Collectors;
 public class StatsServiceImpl implements StatsService {
 
     StatsRepository repository;
+
+    public EndpointHitDto saveHit(EndpointHitDto endpointHitDto){
+        return StatsMapper.endpointHitToDto(repository.save(StatsMapper.endpointHitFromDto(endpointHitDto)));
+    }
 
     @Override
     public List<ViewStats> findAllStats(LocalDateTime start,

@@ -6,12 +6,12 @@ import ru.yandex.practicum.model.EndpointHit;
 import ru.yandex.practicum.model.StatsRow;
 
 public class StatsMapper {
-    public EndpointHit endpointHitFromDto(EndpointHitDto dto) {
+    public static EndpointHit endpointHitFromDto(EndpointHitDto dto) {
         return new EndpointHit(dto.getApp(), dto.getUri(),
                 dto.getIp(), dto.getTimestamp());
     }
 
-    public EndpointHitDto endpointHitToDto(EndpointHit endpointHit) {
+    public static EndpointHitDto endpointHitToDto(EndpointHit endpointHit) {
        return new EndpointHitDto(endpointHit.getApp(), endpointHit.getUri(), endpointHit.getIp(),
                endpointHit.getTimestamp());
     }

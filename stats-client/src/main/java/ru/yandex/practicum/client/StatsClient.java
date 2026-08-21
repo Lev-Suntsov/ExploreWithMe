@@ -1,5 +1,6 @@
 package ru.yandex.practicum.client;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
@@ -16,7 +17,7 @@ public class StatsClient extends BaseClient {
     private static final DateTimeFormatter FORMATTER =
             DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
-    public StatsClient(String serverUrl, RestTemplate restTemplate) {
+    public StatsClient(@Value("${STATS_SERVER_URL:http://stats-server:9090}") String serverUrl, RestTemplate restTemplate) {
         super(serverUrl, restTemplate);
     }
 

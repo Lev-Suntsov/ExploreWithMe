@@ -1,9 +1,9 @@
 package ru.yandex.practicum.client;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
 import ru.yandex.practicum.ViewStats;
 
 import java.time.LocalDateTime;
@@ -17,8 +17,9 @@ public class StatsClient extends BaseClient {
     private static final DateTimeFormatter FORMATTER =
             DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
-    public StatsClient(@Value("${STATS_SERVER_URL:http://stats-server:9090}") String serverUrl, RestTemplate restTemplate) {
-        super(serverUrl, restTemplate);
+    // Импортируйте: import org.springframework.boot.web.client.RestTemplateBuilder;
+    public StatsClient(@Value("${STATS_SERVER_URL:http://stats-server:9090}") String serverUrl, RestTemplateBuilder builder) {
+        super(serverUrl, builder.build());
     }
 
     public List<ViewStats> findAllStats(LocalDateTime start,

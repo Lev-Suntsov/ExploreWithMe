@@ -19,9 +19,7 @@ class StatsControllerTest {
 
     @Mock
     private StatsClient client;
-
     private StatsController controller;
-
     @BeforeEach
     void setUp() {
         controller = new StatsController(client);
@@ -43,8 +41,7 @@ class StatsControllerTest {
                 .thenReturn(expected);
 
         List<ViewStats> actual =
-                controller.findAllStats(start, end, uris);
-
+                controller.findAllStats(start, end, uris, false);
         assertEquals(expected, actual);
 
         verify(client).findAllStats(start, end, uris);

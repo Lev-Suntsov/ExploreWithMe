@@ -1,5 +1,6 @@
 package ru.yandex.practicum.controller;
 
+import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
@@ -16,8 +17,8 @@ import ru.yandex.practicum.service.StatsServiceImpl;
 import java.time.LocalDateTime;
 import java.util.List;
 
+@AllArgsConstructor
 @RestController
-@RequiredArgsConstructor
 public class StatsController {
 
     private final StatsServiceImpl service;

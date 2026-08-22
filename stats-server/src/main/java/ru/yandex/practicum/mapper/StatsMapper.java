@@ -1,10 +1,13 @@
 package ru.yandex.practicum.mapper;
 
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 import ru.yandex.practicum.EndpointHitDto;
 import ru.yandex.practicum.ViewStats;
 import ru.yandex.practicum.model.EndpointHit;
 import ru.yandex.practicum.model.StatsRow;
 
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class StatsMapper {
     public static EndpointHit endpointHitFromDto(EndpointHitDto dto) {
         return new EndpointHit(dto.getApp(), dto.getUri(),

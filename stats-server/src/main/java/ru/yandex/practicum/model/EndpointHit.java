@@ -1,6 +1,5 @@
 package ru.yandex.practicum.model;
 
-import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.GenerationType;
@@ -8,7 +7,6 @@ import javax.persistence.*;
 import java.time.LocalDateTime;
 
 @NoArgsConstructor
-@Data
 @Entity
 @Table(name = "endpointhit")
 public class EndpointHit {
@@ -32,6 +30,26 @@ public class EndpointHit {
     @Column
     private String ip;
 
+    public LocalDateTime getTimestamp() {
+        return timestamp;
+    }
+
+    public String getIp() {
+        return ip;
+    }
+
+
+    public String getUri() {
+        return uri;
+    }
+
+
+    public String getApp() {
+        return app;
+    }
+
     @Column
     private LocalDateTime timestamp;
+
+
 }

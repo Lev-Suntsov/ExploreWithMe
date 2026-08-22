@@ -84,6 +84,7 @@
 
     <build>
         <plugins>
+            <!-- Плагин Checkstyle Практикума -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-checkstyle-plugin</artifactId>
@@ -101,7 +102,37 @@
                     </execution>
                 </executions>
             </plugin>
+
+            <!-- НАСТРОЙКА ИСПОЛНЯЕМОГО ПЛАГИНА ДЛЯ STATS-SERVER -->
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+                <version>2.7.18</version>
+                <configuration>
+                    <!-- Указываем точный путь к главному классу вашего сервера статистики -->
+                    <mainClass>ru.yandex.practicum.StatApplication</mainClass>
+                </configuration>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>repackage</goal> <!-- Создает Main-Class в манифесте JAR -->
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <!-- Плагин компилятора -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.13.0</version>
+                <configuration>
+                    <release>11</release>
+                    <encoding>UTF-8</encoding>
+                </configuration>
+            </plugin>
         </plugins>
     </build>
+
 </project>
 

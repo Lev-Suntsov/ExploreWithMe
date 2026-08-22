@@ -20,6 +20,7 @@ class StatsControllerTest {
     @Mock
     private StatsClient client;
     private StatsController controller;
+
     @BeforeEach
     void setUp() {
         controller = new StatsController(client);

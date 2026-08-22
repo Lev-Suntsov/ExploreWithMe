@@ -4,6 +4,7 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
+
     <parent>
         <groupId>ru.yandex.practicum</groupId>
         <artifactId>ExploreWithMe</artifactId>
@@ -19,7 +20,7 @@
     </properties>
 
     <dependencies>
-        <!-- Подключаем клиент статистики, чтобы ewm-service мог отправлять туда данные -->
+        <!-- Связь с клиентом статистики -->
         <dependency>
             <groupId>ru.yandex.practicum</groupId>
             <artifactId>stats-client</artifactId>
@@ -62,7 +63,6 @@
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <version>2.7.18</version>
-                <!-- ДОБАВЛЕН БЛОК УКАЗАНИЯ ГЛАВНОГО КЛАССА -->
                 <configuration>
                     <mainClass>ru.yandex.practicum.MainServiceApplication</mainClass>
                 </configuration>

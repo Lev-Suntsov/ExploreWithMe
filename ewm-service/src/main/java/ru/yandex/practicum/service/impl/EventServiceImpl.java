@@ -126,8 +126,7 @@ public class EventServiceImpl implements EventService {
         if (!EventState.PUBLISHED.equals(event.getState())) {
             throw new NotFoundException("Event с id=" + eventId + " не является публичной");
         }
-        return Mapper.toEventDto(eventRepository.findById(eventId).
-                orElseThrow(() -> new NotFoundException("Event с id=" + eventId + "не найден")));
+        return Mapper.toEventDto(eventRepository.findById(eventId).orElseThrow(() -> new NotFoundException("Event с id=" + eventId + "не найден")));
     }
 
     @Override
@@ -220,7 +219,7 @@ public class EventServiceImpl implements EventService {
             String sort,
             int from,
             int size
-    ){
+    ) {
         Pageable pageable = PageRequest.of(from / size, size);
         Page<Event> page = eventRepository.findPublicEvents(
                 text,

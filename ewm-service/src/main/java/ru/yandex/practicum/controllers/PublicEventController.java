@@ -11,7 +11,6 @@ import ru.yandex.practicum.EndpointHitDto;
 import ru.yandex.practicum.client.StatsClient;
 import ru.yandex.practicum.model.dto.EventDto;
 import ru.yandex.practicum.model.dto.EventShortDto;
-import ru.yandex.practicum.service.EventService;
 import ru.yandex.practicum.service.impl.EventServiceImpl;
 
 import javax.servlet.http.HttpServletRequest;
@@ -61,11 +60,9 @@ public class PublicEventController {
                 size
         );
     }
+
     @GetMapping("/{id}")
-    public EventDto findEvent(
-            @PathVariable Long id,
-            HttpServletRequest request
-    ) {
+    public EventDto findEvent(@PathVariable Long id, HttpServletRequest request) {
         saveHit(request);
 
         return eventService.findPublicEvent(id);

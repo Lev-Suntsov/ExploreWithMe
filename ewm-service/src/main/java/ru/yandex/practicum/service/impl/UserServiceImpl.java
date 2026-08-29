@@ -19,27 +19,27 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
     UserRepository repository;
+
     @Transactional
     @Override
-    public UserDto createUser(NewUserRequest dto){
+    public UserDto createUser(NewUserRequest dto) {
         return Mapper.toUserDto(repository.save(Mapper.fromNewUserDto(dto)));
     }
 
     @Override
-    public List<UserDto> getUsers(List<Long> ids, int from, int size){
+    public List<UserDto> getUsers(List<Long> ids, int from, int size) {
         Pageable pageable = PageRequest.of(from / size, size);
         return  repository.findByIdIn(ids, pageable).stream().map(Mapper::toUserDto).collect(Collectors.toList());
     }
 
     @Override
-    public UserDto getUser(Long userId){
-        return Mapper.toUserDto(repository.findById(userId).
-                orElseThrow(() -> new NotFoundException("Пользователь с id " + userId + " не найден")));
+    public UserDto getUser(Long userId) {
+        return Mapper.toUserDto(repository.findById(userId).orElseThrow(() -> new NotFoundException("Пользователь с id " + userId + " не найден")));
     }
 
     @Override
     @Transactional
-    public void deleteUser(Long userId){
+    public void deleteUser(Long userId) {
         repository.findById(userId).orElseThrow(() -> new NotFoundException("Пользователь с id " + userId + " не найден"));
         repository.deleteById(userId);
     }

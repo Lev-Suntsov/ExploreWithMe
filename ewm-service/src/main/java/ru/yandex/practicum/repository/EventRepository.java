@@ -7,13 +7,10 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import ru.yandex.practicum.model.Event;
-import ru.yandex.practicum.model.dto.EventDto;
-import ru.yandex.practicum.model.dto.EventShortDto;
 import ru.yandex.practicum.model.state.EventState;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 
 public interface EventRepository extends JpaRepository<Event, Long>, JpaSpecificationExecutor<Event> {
 

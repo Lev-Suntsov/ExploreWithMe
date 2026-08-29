@@ -50,7 +50,7 @@ public class Mapper {
         return event;
     }
 
-    public static CategoryDto toCategoryDto (Category category) {
+    public static CategoryDto toCategoryDto(Category category) {
         CategoryDto dto = new CategoryDto();
         dto.setName(category.getName());
         return dto;
@@ -81,7 +81,7 @@ public class Mapper {
         return request;
     }
 
-    public static NewEventDto toNewEventDto(EventDto eventDto){
+    public static NewEventDto toNewEventDto(EventDto eventDto) {
         NewEventDto newEventDto = new NewEventDto();
         newEventDto.setAnnotation(eventDto.getAnnotation());
         newEventDto.setCategory(newEventDto.getCategory());
@@ -93,7 +93,7 @@ public class Mapper {
         return newEventDto;
     }
 
-    public static EventShortDto toEventShortDto(EventDto dto){
+    public static EventShortDto toEventShortDto(EventDto dto) {
         EventShortDto shortDto = new EventShortDto();
         shortDto.setId(dto.getId());
         shortDto.setInitiator(dto.getInitiator());
@@ -105,7 +105,7 @@ public class Mapper {
         return shortDto;
     }
 
-    public static UserDto toUserDto(User user){
+    public static UserDto toUserDto(User user) {
         UserDto dto = new UserDto();
         dto.setId(user.getId());
         dto.setEmail(user.getEmail());
@@ -113,9 +113,10 @@ public class Mapper {
         return dto;
     }
 
-    public static User fromNewUserDto(NewUserRequest request){
+    public static User fromNewUserDto(NewUserRequest request) {
         User user = new User();
         user.setName(request.getName());
         user.setEmail(request.getEmail());
+        return user;
     }
 }

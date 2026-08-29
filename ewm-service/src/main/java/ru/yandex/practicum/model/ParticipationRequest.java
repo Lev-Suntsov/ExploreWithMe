@@ -2,7 +2,6 @@ package ru.yandex.practicum.model;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
-import java.util.List;
 
 @Entity
 @Table(name = "requests", uniqueConstraints = {
@@ -29,7 +28,7 @@ public class ParticipationRequest {
     @Column(nullable = false)
     private LocalDateTime created;
 
-    public Long getId(){
+    public Long getId() {
         return id;
     }
 

@@ -1,12 +1,15 @@
-FROM eclipse-temurin:11-jre
-
-WORKDIR /app
-
-COPY wait-for-it.sh wait-for-it.sh
-RUN chmod +x wait-for-it.sh
-
-COPY target/main-service-1.0-SNAPSHOT.jar app.jar
-
-EXPOSE 8080
-
-ENTRYPOINT ["./wait-for-it.sh", "stats-server:9090", "java", "-jar", "app.jar"]
+  ewm-service:
+    build: ./ewm-service
+    container_name: ewm-service
+    depends_on:
+      ewm-db:
+        condition: service_healthy
+      stats-server:
+        condition: service_started
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://ewm-db:5432/ewm
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: diplom
+      STATS_SERVER_URL: http://stats-server:9090

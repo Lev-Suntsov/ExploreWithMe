@@ -3,7 +3,6 @@ package ru.yandex.practicum.client;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.EndpointHitDto;
 import ru.yandex.practicum.ViewStats;
@@ -60,6 +59,7 @@ public class StatsClient extends BaseClient {
                 ? Collections.emptyList()
                 : response.getBody();
     }
+
     @Value("${stats-server.url:http://stats-server:9090}")
     private String statsServerUrl;
 

@@ -1,0 +1,241 @@
+package ru.yandex.practicum.service.impl;
+
+import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import ru.yandex.practicum.exeptions.ConflictException;
+import ru.yandex.practicum.exeptions.NotFoundException;
+import ru.yandex.practicum.model.Category;
+import ru.yandex.practicum.model.Event;
+import ru.yandex.practicum.model.User;
+import ru.yandex.practicum.model.dto.*;
+import ru.yandex.practicum.model.mapper.Mapper;
+import ru.yandex.practicum.model.state.EventState;
+import ru.yandex.practicum.repository.CategoryRepository;
+import ru.yandex.practicum.repository.EventRepository;
+import ru.yandex.practicum.repository.UserRepository;
+import ru.yandex.practicum.service.EventService;
+
+import javax.persistence.criteria.Predicate;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
+
+@Service
+@RequiredArgsConstructor
+@Transactional(readOnly = true)
+public class EventServiceImpl implements EventService {
+
+    private final EventRepository eventRepository;
+    private final UserRepository userRepository;
+    private final CategoryServiceImpl categoryService;
+    private final UserServiceImpl userService;
+    private final CategoryRepository categoryRepository;
+
+
+    @Override
+    @Transactional
+    public EventDto createEvent(Long userId, NewEventDto dto) {
+        if (dto.getEventDate().isBefore(LocalDateTime.now().plusHours(1))) {
+            throw new ConflictException("Событие должно быть не ранее чем за 1 час от даты публикации");
+        }
+        User initiator = userRepository.findById(userId).orElseThrow(() -> new NotFoundException("Пользователь с id" + userId + " не найден"));
+        Category category = categoryRepository.findById(dto.getCategory()).orElseThrow(() -> new NotFoundException("категория с id" + dto.getCategory() + " не найдена"));
+        Event event = new Event();
+        event.setInitiator(initiator);
+        event.setCategory(category);
+        event.setTitle(dto.getTitle());
+        event.setAnnotation(dto.getAnnotation());
+        event.setDescription(dto.getDescription());
+        event.setEventDate(dto.getEventDate());
+        event.setLocation(dto.getLocation());
+        event.setPaid(dto.isPaid());
+        event.setParticipantLimit(dto.getParticipantLimit());
+        event.setRequestModeration(dto.isRequestModeration());
+        event.setState(EventState.PENDING);
+        event.setCreatedOn(LocalDateTime.now());
+
+        Event saved = eventRepository.save(event);
+
+        return Mapper.toEventDto(saved);
+    }
+
+    @Override
+    @Transactional
+    public EventDto updateEvent(
+            Long userId,
+            Long eventId,
+            UpdateEventUserRequest dto) {
+
+        Event event = eventRepository.getById(eventId);
+
+        if (!event.getInitiator().getId().equals(userId)) {
+            throw new NotFoundException("Event с id = " + eventId + " не найден");
+        }
+
+        if (event.getState() == EventState.PUBLISHED) {
+            throw new ConflictException(
+                    "Изменять можно только события в состоянии PENDING или CANCELED"
+            );
+        }
+
+
+        if (dto.getStateAction() != null) {
+            switch (dto.getStateAction()) {
+                case "SEND_TO_REVIEW":
+                    event.setState(EventState.PENDING);
+                    break;
+                case "CANCEL_REVIEW":
+                    event.setState(EventState.CANCELED);
+                    break;
+                default:
+                    throw new ConflictException("state указан не верно");
+            }
+        }
+
+        return Mapper.toEventDto(eventRepository.save(event));
+    }
+
+    public EventDto getUserEvent(Long userId, Long eventId) {
+        return Mapper.toEventDto(eventRepository.findByIdAndInitiatorId(userId, eventId));
+    }
+
+    @Override
+    public List<EventShortDto> getUserEvents(Long userId, int from, int size) {
+        userRepository.getById(userId);
+
+        PageRequest pageRequest = PageRequest.of(from / size, size);
+
+        List<Event> events = eventRepository.findAllByInitiatorId(userId, pageRequest);
+
+        List<EventDto> eventsDto = events.stream().map(Mapper::toEventDto).collect(Collectors.toList());
+
+        return eventsDto.stream().map(Mapper::toEventShortDto).collect(Collectors.toList());
+    }
+
+    @Override
+    public EventDto findPublicEvent(Long eventId) {
+        Event event = eventRepository.findById(eventId)
+                .orElseThrow(() -> new NotFoundException("Event с id=" + eventId + "не найден"));
+
+        if (!EventState.PUBLISHED.equals(event.getState())) {
+            throw new NotFoundException("Event с id=" + eventId + " не является публичной");
+        }
+        return Mapper.toEventDto(eventRepository.findById(eventId).
+                orElseThrow(() -> new NotFoundException("Event с id=" + eventId + "не найден")));
+    }
+
+    @Override
+    public List<EventDto> findAdminEvents(
+            List<Long> users,
+            List<EventState> states,
+            List<Long> categories,
+            LocalDateTime rangeStart,
+            LocalDateTime rangeEnd,
+            int from,
+            int size
+    ) {
+        Pageable pageable = PageRequest.of(from / size, size);
+        List<Event> events;
+
+        if (hasFilters(users, states, categories, rangeStart, rangeEnd)) {
+            Specification<Event> spec = (root, query, cb) -> {
+                List<Predicate> predicates = new ArrayList<>();
+                predicates.add(root.get("initiator").get("id").in(users));
+                predicates.add(root.get("state").in(states));
+                predicates.add(root.get("category").get("id").in(categories));
+                predicates.add(cb.greaterThanOrEqualTo(root.get("eventDate"), rangeStart));
+                predicates.add(cb.lessThanOrEqualTo(root.get("eventDate"), rangeEnd));
+                return cb.and(predicates.toArray(new Predicate[0]));
+            };
+
+            events = eventRepository.findAll(spec, pageable).getContent();
+        } else {
+            events = eventRepository.findAll(pageable).getContent();
+        }
+
+        return events.stream()
+                .map(e -> Mapper.toEventDto(e))
+                .collect(Collectors.toList());
+    }
+
+    private boolean hasFilters(List<Long> users, List<EventState> states,
+                               List<Long> categories, LocalDateTime rangeStart,
+                               LocalDateTime rangeEnd) {
+        return !isEmpty(users) || !isEmpty(states) || !isEmpty(categories)
+                || rangeStart != null || rangeEnd != null;
+    }
+
+    private boolean isEmpty(List<?> list) {
+        return list == null || list.isEmpty();
+    }
+
+    @Override
+    public EventDto updateEventByAdmin(Long eventId, UpdateEventAdminRequest dto) {
+        Event event = eventRepository.findById(eventId)
+                .orElseThrow(() -> new NotFoundException("Event с id=" + eventId + " не найден"));
+        LocalDateTime minEventDate = event.getPublishedOn().plusHours(1);
+        if (dto.getEventDate().isBefore(minEventDate)) {
+            throw new ConflictException("Событие должно быть не ранее чем за 1 час от даты публикации");
+        }
+
+        switch (dto.getStateAction()) {
+            case PUBLISH_EVENT:
+                if (!EventState.PENDING.equals(event.getState())) {
+                    throw new ConflictException(
+                            "Событие должно быть со статусом admin: " + event.getState()
+                    );
+                }
+                event.setState(EventState.PUBLISHED);
+                event.setPublishedOn(LocalDateTime.now());
+                break;
+
+            case REJECT_EVENT:
+                if (EventState.PUBLISHED.equals(event.getState())) {
+                    throw new ConflictException(
+                            "Event уже опубликована"
+                    );
+                }
+                event.setState(EventState.CANCELED);
+                break;
+            default:
+                throw new ConflictException("Неизвестный статус");
+        }
+
+        return Mapper.toEventDto(eventRepository.save(event));
+    }
+
+    public List<EventShortDto> findPublicEvents(
+            String text,
+            List<Long> categories,
+            Boolean paid,
+            LocalDateTime rangeStart,
+            LocalDateTime rangeEnd,
+            boolean onlyAvailable,
+            String sort,
+            int from,
+            int size
+    ){
+        Pageable pageable = PageRequest.of(from / size, size);
+        Page<Event> page = eventRepository.findPublicEvents(
+                text,
+                categories,
+                paid,
+                rangeStart,
+                rangeEnd,
+                EventState.PUBLISHED,
+                pageable
+        );
+
+        List<Event> events = page.getContent();
+
+        return events.stream()
+                .map(Mapper::toEventDto)
+                .map(Mapper::toEventShortDto).collect(Collectors.toList());
+    }
+}

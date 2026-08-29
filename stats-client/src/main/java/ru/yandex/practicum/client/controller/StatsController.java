@@ -4,9 +4,11 @@ import lombok.AllArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import ru.yandex.practicum.EndpointHitDto;
 import ru.yandex.practicum.ViewStats;
 import ru.yandex.practicum.client.StatsClient;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -56,5 +58,16 @@ public class StatsController {
             List<String> uris) {
 
         return client.findUniqueStats(start, end, uris);
+    }
+
+    private void saveHit(HttpServletRequest request) {
+        EndpointHitDto hit = new EndpointHitDto(
+                "ewm-main-service",
+                request.getRequestURI(),
+                request.getRemoteAddr(),
+                LocalDateTime.now()
+        );
+
+        client.saveHit(hit);
     }
 }

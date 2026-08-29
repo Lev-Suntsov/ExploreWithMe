@@ -3,7 +3,9 @@ package ru.yandex.practicum.client;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.EndpointHitDto;
 import ru.yandex.practicum.ViewStats;
 
 import java.time.LocalDateTime;
@@ -57,5 +59,15 @@ public class StatsClient extends BaseClient {
         return response.getBody() == null
                 ? Collections.emptyList()
                 : response.getBody();
+    }
+    @Value("${stats-server.url:http://stats-server:9090}")
+    private String statsServerUrl;
+
+    public void saveHit(EndpointHitDto hit) {
+        restTemplate.postForEntity(
+                statsServerUrl + "/hit",
+                hit,
+                Void.class
+        );
     }
 }

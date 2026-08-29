@@ -12,6 +12,7 @@
 
     <modules>
         <module>stats-dto</module>
+        <module>stats-server</module> <!-- ВОТ ЭТА СТРОКА ОБЯЗАТЕЛЬНО ДОЛЖНА БЫТЬ ТУТ! -->
         <module>stats-client</module>
         <module>ewm-service</module>
     </modules>

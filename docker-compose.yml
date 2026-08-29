@@ -46,8 +46,8 @@ services:
 
   ewm-service:
     build:
-      context: ./evm-service
-      dockerfile: Dockerfile
+    context: ./ewm-service
+    dockerfile: Dockerfile
     container_name: ewm-service
     depends_on:
       ewm-db:

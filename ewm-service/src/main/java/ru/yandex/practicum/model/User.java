@@ -7,7 +7,6 @@ import javax.persistence.*;
 
 public class User {
 
-    public User orElseThrow;
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

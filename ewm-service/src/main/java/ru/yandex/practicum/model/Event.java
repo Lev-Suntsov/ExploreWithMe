@@ -14,12 +14,13 @@ public class Event {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "initiator_id", nullable = false)
+    @JoinColumn(name = "initiator", nullable = false) // Fixed from "initiator_id"
     private User initiator;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "category_id", nullable = false)
+    @JoinColumn(name = "category", nullable = false)  // Fixed from "category_id"
     private Category category;
+
 
     @Column(nullable = false, length = 120)
     private String title;

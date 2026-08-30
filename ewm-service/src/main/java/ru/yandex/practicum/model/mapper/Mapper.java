@@ -1,10 +1,9 @@
 package ru.yandex.practicum.model.mapper;
 
-import ru.yandex.practicum.model.Category;
-import ru.yandex.practicum.model.Event;
-import ru.yandex.practicum.model.ParticipationRequest;
-import ru.yandex.practicum.model.User;
+import ru.yandex.practicum.model.*;
 import ru.yandex.practicum.model.dto.*;
+
+import java.util.stream.Collectors;
 
 public class Mapper {
     public static User fromDtoToUser(UserDto dto) {
@@ -136,5 +135,10 @@ public class Mapper {
         user.setName(request.getName());
         user.setEmail(request.getEmail());
         return user;
+    }
+
+    public static CompilationDto toCompilationDto(Compilation compilation){
+        return new CompilationDto(compilation.getId(), compilation.getTitle(), compilation.isPinned(), compilation.getEvents().stream().
+                map(Mapper::toEventDto).collect(Collectors.toList()));
     }
 }

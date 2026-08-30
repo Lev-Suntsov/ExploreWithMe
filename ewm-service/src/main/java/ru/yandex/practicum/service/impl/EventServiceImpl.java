@@ -1,6 +1,7 @@
 package ru.yandex.practicum.service.impl;
 
 import lombok.RequiredArgsConstructor;
+import org.apache.coyote.BadRequestException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -44,7 +45,10 @@ public class EventServiceImpl implements EventService {
 
     @Override
     @Transactional
-    public EventDto createEvent(Long userId, NewEventDto dto) {
+    public EventDto createEvent(Long userId, NewEventDto dto) throws BadRequestException {
+        if (dto.getParticipantLimit() != null && dto.getParticipantLimit() < 0) {
+            throw new BadRequestException("Participant limit cannot be negative");
+        }
         if (dto.getEventDate().isBefore(LocalDateTime.now().plusHours(1))) {
             throw new ConflictException("Событие должно быть не ранее чем за 1 час от даты публикации");
         }
@@ -179,12 +183,43 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
-    public EventDto updateEventByAdmin(Long eventId, UpdateEventAdminRequest dto) {
+    public EventDto updateEventByAdmin(Long eventId, UpdateEventAdminRequest dto) throws BadRequestException {
         Event event = eventRepository.findById(eventId)
                 .orElseThrow(() -> new NotFoundException("Event с id=" + eventId + " не найден"));
         LocalDateTime minEventDate = event.getPublishedOn().plusHours(1);
         if (dto.getEventDate().isBefore(minEventDate)) {
             throw new ConflictException("Событие должно быть не ранее чем за 1 час от даты публикации");
+        }
+
+        if (dto.getAnnotation() != null) {
+            if ( dto.getAnnotation().length() < 20 || dto.getAnnotation().length() > 2000) {
+                throw new BadRequestException("Invalid annotation length"); // Ручная валидация для тестов на длину строк
+            }
+            event.setAnnotation(dto.getAnnotation());
+        }
+        if (dto.getDescription() != null) {
+            if ( dto.getDescription().length() < 20 || dto.getDescription().length() > 7000) {
+                throw new BadRequestException("Invalid description length");
+            }
+            event.setDescription(dto.getDescription());
+        }
+        if (dto.getTitle() != null) {
+            if (dto.getTitle().length() < 3 || dto.getTitle().length() > 120) {
+                throw new BadRequestException("Invalid title length");
+            }
+            event.setTitle(dto.getTitle());
+        }
+        if (dto.getParticipantLimit() != null) {
+            if (dto.getParticipantLimit() < 0) {
+                throw new BadRequestException("Limit cannot be negative");
+            }
+            event.setParticipantLimit(dto.getParticipantLimit());
+        }
+        if (dto.getPaid() != null) {
+            event.setPaid(dto.getPaid());
+        }
+        if (dto.getRequestModeration() != null) {
+            event.setRequestModeration(dto.getRequestModeration());
         }
 
         switch (dto.getStateAction()) {

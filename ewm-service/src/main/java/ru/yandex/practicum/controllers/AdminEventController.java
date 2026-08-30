@@ -1,6 +1,7 @@
 package ru.yandex.practicum.controllers;
 
 import lombok.RequiredArgsConstructor;
+import org.apache.coyote.BadRequestException;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.model.dto.EventDto;
@@ -50,7 +51,7 @@ public class AdminEventController {
     public EventDto updateEventByAdmin(
             @PathVariable Long eventId,
             @RequestBody @Valid UpdateEventAdminRequest dto
-    ) {
+    ) throws BadRequestException {
         return eventService.updateEventByAdmin(eventId, dto);
     }
 }

@@ -15,14 +15,14 @@ public class PublicCategoryController  {
 
     @GetMapping
     public List<CategoryDto> getCategories(
-            @RequestParam(defaultValue = "0") int from,
-            @RequestParam(defaultValue = "10") int size
+            @RequestParam(defaultValue = "0") int from,      // Должно быть строго 0
+            @RequestParam(defaultValue = "10") int size       // Должно быть строго 10
     ) {
         return categoryService.getCategories(from, size);
     }
 
     @GetMapping("/{catId}")
-    public CategoryDto getCategory(@PathVariable Long catId) {
+    public CategoryDto getCategoryById(@PathVariable Long catId) { // Путь строго разделен через /{catId}
         return categoryService.getCategory(catId);
     }
 }

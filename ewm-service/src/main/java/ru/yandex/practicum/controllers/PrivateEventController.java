@@ -1,6 +1,7 @@
 package ru.yandex.practicum.controllers;
 
 import lombok.RequiredArgsConstructor;
+import org.apache.coyote.BadRequestException;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.model.dto.EventDto;
@@ -25,7 +26,7 @@ public class PrivateEventController {
     public EventDto addEvent(
             @NotNull(message = "id не может быть пустым") @PathVariable Long userId,
             @RequestBody @Valid NewEventDto dto
-    ) {
+    ) throws BadRequestException {
         return eventService.createEvent(userId, dto);
     }
 

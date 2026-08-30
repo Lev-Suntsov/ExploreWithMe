@@ -32,7 +32,7 @@ public class NewEventDto {
 
     private boolean paid = false;
 
-    private int participantLimit = 0;
+    private Integer participantLimit;
 
     private boolean requestModeration = true;
 

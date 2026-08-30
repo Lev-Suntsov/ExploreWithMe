@@ -4,13 +4,14 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.model.dto.CategoryDto;
 import ru.yandex.practicum.service.CategoryService;
+import ru.yandex.practicum.service.impl.CategoryServiceImpl;
 
 import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
 public class PublicCategoryController  {
-    private final CategoryService categoryService;
+    private final CategoryServiceImpl categoryService;
 
     @GetMapping
     public List<CategoryDto> getCategories(

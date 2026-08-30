@@ -147,6 +147,10 @@ public class Event {
         this.title = title;
     }
 
+    public void setId(Long id){
+        this.id = id;
+    }
+
     public Category getCategory() {
         return category;
     }

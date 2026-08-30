@@ -3,6 +3,7 @@ package ru.yandex.practicum.service.impl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.exeptions.NotFoundException;
 import ru.yandex.practicum.model.Category;
 import ru.yandex.practicum.model.dto.CategoryDto;
 import ru.yandex.practicum.model.dto.NewCategoryDto;
@@ -39,8 +40,8 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Override
     public CategoryDto updateCategory(Long catId, CategoryDto dto) {
-        Category category = getCategoryEntity(catId);
-
+        Category category = categoryRepository.findById(catId)
+                .orElseThrow(() -> new NotFoundException("Category with id=" + catId + " not found"));
         if (dto.getName() != null && !dto.getName().isBlank()) {
             if (!category.getName().equals(dto.getName())
                     && categoryRepository.existsByName(dto.getName())) {
@@ -73,7 +74,8 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Override
     public CategoryDto getCategory(Long catId) {
-        Category category = getCategoryEntity(catId);
+        Category category = categoryRepository.findById(catId)
+                .orElseThrow(() -> new NotFoundException("Category with id=" + catId + " not found"));
         return Mapper.toCategoryDto(category);
     }
 

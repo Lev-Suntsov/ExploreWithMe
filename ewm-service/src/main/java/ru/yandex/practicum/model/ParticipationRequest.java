@@ -64,4 +64,8 @@ public class ParticipationRequest {
         this.requester = requester;
     }
 
+    public void setId(Long id) {
+        this.id = id;
+    }
+
 }

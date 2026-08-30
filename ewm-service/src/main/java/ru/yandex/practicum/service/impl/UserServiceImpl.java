@@ -18,7 +18,7 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
-    UserRepository repository;
+    private final UserRepository repository;
 
     @Transactional
     @Override

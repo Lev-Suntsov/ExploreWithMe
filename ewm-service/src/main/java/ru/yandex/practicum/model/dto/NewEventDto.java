@@ -16,7 +16,7 @@ public class NewEventDto {
     @Size(min = 20, max = 2000)
     private String annotation;
 
-    @NotNull(message = "Нужно указать категорию")
+    @NotNull(message = "category не может быть пустым")
     private Long category;
 
     @NotBlank(message = "Описание не должно быть пустым")

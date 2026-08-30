@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.model.Event;
+import ru.yandex.practicum.model.RequestStatus;
 import ru.yandex.practicum.model.state.EventState;
 
 import java.time.LocalDateTime;
@@ -30,15 +31,6 @@ public interface EventRepository extends JpaRepository<Event, Long>, JpaSpecific
             "ORDER BY e.id ASC")
     List<Event> findAllByInitiatorId(
             @Param("userId") Long userId,
-            Pageable pageable
-    );
-
-    List<Event> findAllByInitiatorIdInAndStateInAndCategoryIdInAndEventDateBetween(
-            List<Long> users,
-            List<EventState> states,
-            List<Long> categories,
-            LocalDateTime rangeStart,
-            LocalDateTime rangeEnd,
             Pageable pageable
     );
 

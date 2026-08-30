@@ -18,7 +18,7 @@ import javax.validation.constraints.NotNull;
 @RequiredArgsConstructor
 public class PrivateEventController {
 
-    EventServiceImpl eventService;
+    private final EventServiceImpl eventService;
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)

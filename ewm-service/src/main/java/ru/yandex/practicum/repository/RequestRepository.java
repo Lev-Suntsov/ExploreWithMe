@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
+
 public interface RequestRepository extends JpaRepository<ParticipationRequest, Long> {
 
 
@@ -21,4 +22,6 @@ public interface RequestRepository extends JpaRepository<ParticipationRequest, L
     boolean existsByRequesterIdAndEventId(Long requesterId, Long eventId);
 
     Optional<ParticipationRequest> findByIdAndRequesterId(Long id, Long requesterId);
+
+    long countByEventIdAndStatus(Long eventId, RequestStatus status);
 }

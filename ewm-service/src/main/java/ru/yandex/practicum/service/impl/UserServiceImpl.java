@@ -6,6 +6,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.yandex.practicum.exeptions.NotFoundException;
+import ru.yandex.practicum.model.User;
 import ru.yandex.practicum.model.dto.NewUserRequest;
 import ru.yandex.practicum.model.dto.UserDto;
 import ru.yandex.practicum.model.mapper.Mapper;
@@ -29,7 +30,18 @@ public class UserServiceImpl implements UserService {
     @Override
     public List<UserDto> getUsers(List<Long> ids, int from, int size) {
         Pageable pageable = PageRequest.of(from / size, size);
-        return  repository.findByIdIn(ids, pageable).stream().map(Mapper::toUserDto).collect(Collectors.toList());
+
+        List<User> users;
+
+        if (ids == null || ids.isEmpty()) {
+            users = repository.findAll(pageable).getContent();
+        } else {
+            users = repository.findByIdIn(ids, pageable);
+        }
+
+        return users.stream()
+                .map(Mapper::toUserDto)
+                .collect(Collectors.toList());
     }
 
     @Override

@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -11,12 +12,14 @@ import ru.yandex.practicum.exeptions.ConflictException;
 import ru.yandex.practicum.exeptions.NotFoundException;
 import ru.yandex.practicum.model.Category;
 import ru.yandex.practicum.model.Event;
+import ru.yandex.practicum.model.RequestStatus;
 import ru.yandex.practicum.model.User;
 import ru.yandex.practicum.model.dto.*;
 import ru.yandex.practicum.model.mapper.Mapper;
 import ru.yandex.practicum.model.state.EventState;
 import ru.yandex.practicum.repository.CategoryRepository;
 import ru.yandex.practicum.repository.EventRepository;
+import ru.yandex.practicum.repository.RequestRepository;
 import ru.yandex.practicum.repository.UserRepository;
 import ru.yandex.practicum.service.EventService;
 
@@ -26,6 +29,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+
+
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -33,9 +38,8 @@ public class EventServiceImpl implements EventService {
 
     private final EventRepository eventRepository;
     private final UserRepository userRepository;
-    private final CategoryServiceImpl categoryService;
-    private final UserServiceImpl userService;
     private final CategoryRepository categoryRepository;
+    private final RequestRepository requestRepository;
 
 
     @Override
@@ -209,6 +213,8 @@ public class EventServiceImpl implements EventService {
         return Mapper.toEventDto(eventRepository.save(event));
     }
 
+    @Override
+    @Transactional(readOnly = true)
     public List<EventShortDto> findPublicEvents(
             String text,
             List<Long> categories,
@@ -220,21 +226,82 @@ public class EventServiceImpl implements EventService {
             int from,
             int size
     ) {
-        Pageable pageable = PageRequest.of(from / size, size);
-        Page<Event> page = eventRepository.findPublicEvents(
-                text,
-                categories,
-                paid,
-                rangeStart,
-                rangeEnd,
-                EventState.PUBLISHED,
-                pageable
+        Pageable pageable = PageRequest.of(
+                from / size,
+                size,
+                createSort(sort)
         );
+
+        Specification<Event> specification = (root, query, cb) -> {
+            List<Predicate> predicates = new ArrayList<>();
+
+            predicates.add(cb.equal(root.get("state"), EventState.PUBLISHED));
+
+            if (text != null && !text.isBlank()) {
+                String pattern = "%" + text.toLowerCase() + "%";
+
+                predicates.add(cb.or(
+                        cb.like(cb.lower(root.get("annotation")), pattern),
+                        cb.like(cb.lower(root.get("description")), pattern)
+                ));
+            }
+
+            if (categories != null && !categories.isEmpty()) {
+                predicates.add(
+                        root.get("category").get("id").in(categories)
+                );
+            }
+
+            if (paid != null) {
+                predicates.add(cb.equal(root.get("paid"), paid));
+            }
+
+            if (rangeStart != null) {
+                predicates.add(
+                        cb.greaterThanOrEqualTo(
+                                root.get("eventDate"),
+                                rangeStart
+                        )
+                );
+            }
+
+            if (rangeEnd != null) {
+                predicates.add(
+                        cb.lessThanOrEqualTo(
+                                root.get("eventDate"),
+                                rangeEnd
+                        )
+                );
+            }
+
+            return cb.and(predicates.toArray(new Predicate[0]));
+        };
+
+        Page<Event> page = eventRepository.findAll(specification, pageable);
 
         List<Event> events = page.getContent();
 
         return events.stream()
-                .map(Mapper::toEventDto)
-                .map(Mapper::toEventShortDto).collect(Collectors.toList());
+                .filter(event -> !onlyAvailable || isAvailable(event))
+                .map(Mapper::toEventDto).map(Mapper::toEventShortDto)
+                .collect(Collectors.toList());
+    }
+
+    private Sort createSort(String sort) {
+        if ("VIEWS".equalsIgnoreCase(sort)) {
+            return Sort.by(Sort.Direction.DESC, "views");
+        }
+
+        return Sort.by(Sort.Direction.ASC, "eventDate");
+    }
+
+    private boolean isAvailable(Event event) {
+        long confirmedRequests = requestRepository.countByEventIdAndStatus(
+                event.getId(),
+                RequestStatus.CONFIRMED
+        );
+
+        return event.getParticipantLimit() == 0
+                || confirmedRequests < event.getParticipantLimit();
     }
 }

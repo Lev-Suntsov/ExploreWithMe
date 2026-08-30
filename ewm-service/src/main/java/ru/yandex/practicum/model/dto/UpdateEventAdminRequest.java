@@ -15,7 +15,6 @@ public class UpdateEventAdminRequest {
     @NotBlank(message = "annotation не может быть пустым")
     private String annotation;
 
-    @NotNull(message = "category не может быть пустым")
     private Long category;
     @NotBlank(message = "description не может быть пустым")
     private String description;

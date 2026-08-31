@@ -14,13 +14,12 @@ public class Event {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "initiator", nullable = false) // Fixed from "initiator_id"
+    @JoinColumn(name = "initiator", nullable = false)
     private User initiator;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "category", nullable = false)  // Fixed from "category_id"
+    @JoinColumn(name = "category", nullable = false)
     private Category category;
-
 
     @Column(nullable = false, length = 120)
     private String title;
@@ -55,8 +54,18 @@ public class Event {
 
     private LocalDateTime publishedOn;
 
+    @Transient
+    private Long views = 0L;
+
+    @Transient
+    private Long confirmedRequests = 0L;
+
     public Long getId() {
         return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
     }
 
     public LocalDateTime getPublishedOn() {
@@ -147,10 +156,6 @@ public class Event {
         this.title = title;
     }
 
-    public void setId(Long id){
-        this.id = id;
-    }
-
     public Category getCategory() {
         return category;
     }
@@ -165,5 +170,21 @@ public class Event {
 
     public void setInitiator(User initiator) {
         this.initiator = initiator;
+    }
+
+    public Long getViews() {
+        return views != null ? views : 0L;
+    }
+
+    public void setViews(Long views) {
+        this.views = views;
+    }
+
+    public Long getConfirmedRequests() {
+        return confirmedRequests != null ? confirmedRequests : 0L;
+    }
+
+    public void setConfirmedRequests(Long confirmedRequests) {
+        this.confirmedRequests = confirmedRequests;
     }
 }

@@ -39,4 +39,8 @@ public class EventDto {
 
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime publishedOn;
+
+    private Long views = 0L;
+
+    private Long confirmedRequests = 0L;
 }

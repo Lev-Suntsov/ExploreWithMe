@@ -3,6 +3,7 @@ package ru.yandex.practicum.controllers;
 import lombok.RequiredArgsConstructor;
 import org.apache.coyote.BadRequestException;
 import org.springframework.http.HttpStatus;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.model.dto.EventDto;
 import ru.yandex.practicum.model.dto.EventShortDto;
@@ -17,6 +18,7 @@ import javax.validation.constraints.NotNull;
 @RestController
 @RequestMapping("/users/{userId}/events")
 @RequiredArgsConstructor
+@Validated
 public class PrivateEventController {
 
     private final EventServiceImpl eventService;

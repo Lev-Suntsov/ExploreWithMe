@@ -16,5 +16,5 @@ public interface CategoryService {
 
     List<CategoryDto> getCompilationsOrCategories(int from, int size);
 
-    CategoryDto getCategory(Long catId);
+    CategoryDto getCategoryById(Long catId);
 }

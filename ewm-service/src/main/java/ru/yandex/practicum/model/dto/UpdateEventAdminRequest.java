@@ -12,11 +12,9 @@ import java.time.LocalDateTime;
 @Data
 public class UpdateEventAdminRequest {
 
-    @NotBlank(message = "annotation не может быть пустым")
     private String annotation;
 
     private Long category;
-    @NotBlank(message = "description не может быть пустым")
     private String description;
 
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")

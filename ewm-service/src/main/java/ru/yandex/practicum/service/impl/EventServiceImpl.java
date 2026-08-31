@@ -224,27 +224,33 @@ public class EventServiceImpl implements EventService {
             event.setRequestModeration(dto.getRequestModeration());
         }
 
-        switch (dto.getStateAction()) {
-            case PUBLISH_EVENT:
-                if (!EventState.PENDING.equals(event.getState())) {
-                    throw new ConflictException(
-                            "Событие должно быть со статусом admin: " + event.getState()
-                    );
-                }
-                event.setState(EventState.PUBLISHED);
-                event.setPublishedOn(LocalDateTime.now());
-                break;
+        if(dto.getLocation() != null) {
+            event.setLocation(dto.getLocation());
+        }
 
-            case REJECT_EVENT:
-                if (EventState.PUBLISHED.equals(event.getState())) {
-                    throw new ConflictException(
-                            "Event уже опубликована"
-                    );
-                }
-                event.setState(EventState.CANCELED);
-                break;
-            default:
-                throw new ConflictException("Неизвестный статус");
+        if(dto.getStateAction() != null) {
+            switch (dto.getStateAction()) {
+                case PUBLISH_EVENT:
+                    if (!EventState.PENDING.equals(event.getState())) {
+                        throw new ConflictException(
+                                "Событие должно быть со статусом admin: " + event.getState()
+                        );
+                    }
+                    event.setState(EventState.PUBLISHED);
+                    event.setPublishedOn(LocalDateTime.now());
+                    break;
+
+                case REJECT_EVENT:
+                    if (EventState.PUBLISHED.equals(event.getState())) {
+                        throw new ConflictException(
+                                "Event уже опубликована"
+                        );
+                    }
+                    event.setState(EventState.CANCELED);
+                    break;
+                default:
+                    throw new ConflictException("Неизвестный статус");
+            }
         }
 
         return Mapper.toEventDto(eventRepository.save(event));

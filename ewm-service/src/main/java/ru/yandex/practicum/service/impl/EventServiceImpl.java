@@ -24,7 +24,6 @@ import ru.yandex.practicum.service.EventService;
 import javax.persistence.criteria.Predicate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -270,9 +269,10 @@ public class EventServiceImpl implements EventService {
         Page page = eventRepository.findAll(specification, pageable);
         List<EventDto> events = page.getContent();
         return events.stream()
-                .filter(event -> !onlyAvailable || isAvailable(Mapper.fromEventDtoToEntity(event)))
-                .map(Mapper::fromEventDtoToEntity)
+                .filter(event -> !onlyAvailable || isAvailable(event)) // 1. Filter using the database Event entity cleanly
+                .map(Mapper::toEventShortDto)                          // 3. Convert EventDto -> EventShortDto
                 .collect(Collectors.toList());
+
     }
     @Override
     @Transactional
@@ -317,7 +317,7 @@ public class EventServiceImpl implements EventService {
         }
         return Sort.by(Sort.Direction.ASC, "eventDate");
     }
-    private boolean isAvailable(Event event) {
+    private boolean isAvailable(EventDto event) {
         long confirmedRequests = requestRepository.countByEventIdAndStatus(
                 event.getId(),
                 RequestStatus.CONFIRMED

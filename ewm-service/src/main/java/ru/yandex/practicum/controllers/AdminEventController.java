@@ -50,7 +50,7 @@ public class AdminEventController {
     @PatchMapping("/{eventId}")
     public EventDto updateEventByAdmin(
             @PathVariable Long eventId,
-            @RequestBody @Valid UpdateEventAdminRequest dto
+            @RequestBody UpdateEventAdminRequest dto
     ) throws BadRequestException {
         return eventService.updateEventByAdmin(eventId, dto);
     }

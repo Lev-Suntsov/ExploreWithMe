@@ -29,7 +29,7 @@ public class PrivateRequestController {
     public ParticipationRequestDto createRequest(
             @PathVariable Long userId,
             @RequestParam Long eventId
-    ) {
+    ) throws BadRequestException {
         return requestService.createRequest(userId, eventId);
     }
 

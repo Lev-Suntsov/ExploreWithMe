@@ -13,6 +13,7 @@ import ru.yandex.practicum.model.User;
 import ru.yandex.practicum.model.dto.EventRequestStatusUpdateRequest;
 import ru.yandex.practicum.model.dto.ParticipationRequestDto;
 import ru.yandex.practicum.model.mapper.Mapper;
+import ru.yandex.practicum.model.state.EventState;
 import ru.yandex.practicum.repository.EventRepository;
 import ru.yandex.practicum.repository.RequestRepository;
 import ru.yandex.practicum.repository.UserRepository;
@@ -32,19 +33,19 @@ public class RequestServiceImpl implements RequestService {
     private final UserRepository userRepository;
 
     @Override
-    public ParticipationRequestDto createRequest(Long userId, Long eventId) {
+    public ParticipationRequestDto createRequest(Long userId, Long eventId) throws BadRequestException {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new NotFoundException("User с id=" + userId + " не существует"));
+
+        if (eventId == null || eventId == 0) {
+            throw new BadRequestException("Incorrectly made request: eventId is missing");
+        }
 
         Event event = eventRepository.findById(eventId)
                 .orElseThrow(() -> new NotFoundException("Event with id=" + eventId + " was not found"));
 
-        if (event.getInitiator().getId().equals(userId)) {
-            throw new ConflictException("Нельзя создавать заявку на своё событие");
-        }
-
-        if (!event.getState().equals(ru.yandex.practicum.model.EventState.PUBLISHED)) {
-            throw new ConflictException("Событие должно быть опубликовано");
+        if (event.getState() != EventState.PUBLISHED) {
+            throw new ConflictException("Cannot participate in an unpublished event.");
         }
 
         if (requestRepository.existsByRequesterIdAndEventId(userId, eventId)) {

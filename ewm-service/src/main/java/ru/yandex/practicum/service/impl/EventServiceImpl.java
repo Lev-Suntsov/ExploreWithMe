@@ -186,9 +186,11 @@ public class EventServiceImpl implements EventService {
     public EventDto updateEventByAdmin(Long eventId, UpdateEventAdminRequest dto) throws BadRequestException {
         Event event = eventRepository.findById(eventId)
                 .orElseThrow(() -> new NotFoundException("Event с id=" + eventId + " не найден"));
-        LocalDateTime minEventDate = event.getPublishedOn().plusHours(1);
-        if (dto.getEventDate().isBefore(minEventDate)) {
-            throw new ConflictException("Событие должно быть не ранее чем за 1 час от даты публикации");
+        if (event.getPublishedOn() != null) {
+            LocalDateTime minEventDate = event.getPublishedOn().plusHours(1);
+            if (dto.getEventDate().isBefore(minEventDate)) {
+                throw new ConflictException("Событие должно быть не ранее чем за 1 час от даты публикации");
+            }
         }
 
         if (dto.getAnnotation() != null) {

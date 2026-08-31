@@ -9,7 +9,7 @@ import java.util.List;
 
 public interface RequestService {
 
-    ParticipationRequestDto createRequest(Long userId, Long eventId);
+    ParticipationRequestDto createRequest(Long userId, Long eventId) throws BadRequestException;
 
     List<ParticipationRequestDto> getUserRequests(Long userId);
 

@@ -3,6 +3,7 @@ package ru.yandex.practicum.model.mapper;
 import ru.yandex.practicum.model.*;
 import ru.yandex.practicum.model.dto.*;
 
+import java.util.Collections;
 import java.util.stream.Collectors;
 
 public class Mapper {
@@ -47,7 +48,7 @@ public class Mapper {
     public static Event fromEventDtoToEntity(EventDto dto) {
         if (dto == null) return null;
         Event event = new Event();
-        event.setId(event.getId());
+        event.setId(dto.getId());
         event.setAnnotation(dto.getAnnotation());
         event.setCategory(dto.getCategory() != null ? fromCategoryDtoToEntity(dto.getCategory()) : null);
         event.setEventDate(dto.getEventDate());
@@ -84,9 +85,10 @@ public class Mapper {
         if (request == null) return null;
         ParticipationRequestDto dto = new ParticipationRequestDto();
         dto.setId(request.getId());
-        dto.setRequester(request.getRequester() != null ? fromEntity(request.getRequester()) : null);
-        dto.setStatus(request.getStatus());
-        dto.setEvent(request.getEvent() != null ? toEventDto(request.getEvent()) : null);
+
+        dto.setRequester(request.getRequester() != null ? request.getRequester().getId() : null);
+        dto.setEvent(request.getEvent() != null ? request.getEvent().getId() : null);
+
         dto.setCreated(request.getCreated());
         return dto;
     }
@@ -96,9 +98,20 @@ public class Mapper {
         ParticipationRequest request = new ParticipationRequest();
         request.setId(dto.getId());
         request.setCreated(dto.getCreated());
-        request.setEvent(dto.getEvent() != null ? fromEventDtoToEntity(dto.getEvent()) : null);
+
+        // If your database relationship expects entities, bind them using skeleton entity proxies:
+        if (dto.getEvent() != null) {
+            Event event = new Event();
+            event.setId(dto.getEvent());
+            request.setEvent(event);
+        }
+        if (dto.getRequester() != null) {
+            User requester = new User();
+            requester.setId(dto.getRequester());
+            request.setRequester(requester);
+        }
+
         request.setStatus(dto.getStatus());
-        request.setRequester(dto.getRequester() != null ? fromDtoToUser(dto.getRequester()) : null);
         return request;
     }
 
@@ -145,8 +158,15 @@ public class Mapper {
         return user;
     }
 
-    public static CompilationDto toCompilationDto(Compilation compilation){
-        return new CompilationDto(compilation.getId(), compilation.getTitle(), compilation.isPinned(), compilation.getEvents().stream().
-                map(Mapper::toEventDto).collect(Collectors.toList()));
+    public static CompilationDto toCompilationDto(Compilation compilation) {
+        if (compilation == null) return null;
+        CompilationDto dto = new CompilationDto();
+        dto.setId(compilation.getId());
+        dto.setTitle(compilation.getTitle());
+        dto.setPinned(compilation.isPinned());
+        dto.setEvents(compilation.getEvents() != null ?
+                compilation.getEvents().stream().map(Mapper::toEventDto).collect(Collectors.toList()) :
+                Collections.emptyList());
+        return dto;
     }
 }

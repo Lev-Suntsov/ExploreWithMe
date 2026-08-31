@@ -9,8 +9,8 @@ import java.time.LocalDateTime;
 @Data
 public class ParticipationRequestDto {
     private Long id;
-    private UserDto requester;
-    private EventDto event;
+    private Long requester;
+    private Long event;
     private RequestStatus status;
 
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")

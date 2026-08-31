@@ -30,11 +30,12 @@ public class NewEventDto {
     @NotNull(message = "Нужно указать место проведения")
     private Location location;
 
-    private boolean paid = false;
-
     private Integer participantLimit;
 
-    private boolean requestModeration = true;
+    private Boolean paid;
+
+
+    private Boolean requestModeration = true;
 
     @NotBlank(message = "Название не должно быть пустым")
     @Size(min = 3, max = 120)

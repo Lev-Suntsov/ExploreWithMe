@@ -7,8 +7,7 @@ import java.util.List;
 
 
 @Data
-public class EventRequestStatusUpdateRequest {
-
+public class   EventRequestStatusUpdateRequest {
     private List<Long> requestIds;
     private RequestStatus status;
 }

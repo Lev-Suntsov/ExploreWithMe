@@ -177,7 +177,6 @@ public class RequestServiceImpl implements RequestService {
             }
         }
 
-        // 8. Сформировать результат
         EventRequestStatusUpdateResult result = new EventRequestStatusUpdateResult();
         result.setConfirmedRequests(confirmedRequests.stream()
                 .map(Mapper::participationRequestDtoFromEntity)

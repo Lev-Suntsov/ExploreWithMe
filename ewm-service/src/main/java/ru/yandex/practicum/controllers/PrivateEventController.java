@@ -52,7 +52,7 @@ public class PrivateEventController {
             @PathVariable @NotNull(message = "id не может быть пустым") Long userId,
             @PathVariable @NotNull(message = "id не может быть пустым") Long eventId,
             @RequestBody  UpdateEventUserRequest dto
-    ) {
+    ) throws BadRequestException {
         return eventService.updateEvent(userId, eventId, dto);
     }
 }

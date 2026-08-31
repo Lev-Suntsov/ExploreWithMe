@@ -1,6 +1,7 @@
 package ru.yandex.practicum.service;
 
 import org.apache.coyote.BadRequestException;
+import ru.yandex.practicum.model.EventRequestStatusUpdateResult;
 import ru.yandex.practicum.model.dto.*;
 import ru.yandex.practicum.model.state.EventState;
 import java.time.LocalDateTime;
@@ -10,14 +11,14 @@ public interface EventService {
 
     EventDto createEvent(Long userId, NewEventDto dto) throws BadRequestException;
 
-    EventDto updateEvent(Long userId, Long eventId, UpdateEventUserRequest dto);
+    EventDto updateEvent(Long userId, Long eventId, UpdateEventUserRequest dto) throws BadRequestException;
 
     List<EventShortDto> getUserEvents(Long userId, int from, int size);
 
     EventDto getUserEvent(Long userId, Long eventId);
 
     List<EventShortDto> findPublicEvents(
-             String text,
+            String text,
             List<Long> categories,
             Boolean paid,
             LocalDateTime rangeStart,
@@ -40,8 +41,8 @@ public interface EventService {
             int size
     );
 
-    EventDto updateEventByAdmin(
-            Long eventId,
-            UpdateEventAdminRequest dto
-    ) throws BadRequestException;
+    EventRequestStatusUpdateResult ChangeRequestStatus(
+            Long userId, Long eventId, EventRequestStatusUpdateRequest dto);
+
+    EventDto updateEventByAdmin(Long eventId, UpdateEventAdminRequest updateRequest);
 }

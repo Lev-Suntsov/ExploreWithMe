@@ -18,7 +18,6 @@ import ru.yandex.practicum.service.CompilationService;
 
 import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -51,7 +50,7 @@ public class CompilationServiceImpl implements CompilationService {
             Compilation saved = compilationRepository.save(compilation);
             return Mapper.toCompilationDto(saved);
         } catch (Exception e) {
-            throw new ConflictException("Compilation with this title already exists");
+            throw new ConflictException("Compilation с данным именем уже зарегистрировано");
         }
     }
 
@@ -59,7 +58,7 @@ public class CompilationServiceImpl implements CompilationService {
     @Transactional
     public void deleteCompilation(Long compId) {
         if (!compilationRepository.existsById(compId)) {
-            throw new NotFoundException("Compilation with id=" + compId + " was not found");
+            throw new NotFoundException("Compilation с id=" + compId + " не найдена");
         }
         compilationRepository.deleteById(compId);
     }
@@ -68,7 +67,7 @@ public class CompilationServiceImpl implements CompilationService {
     @Transactional
     public CompilationDto updateCompilation(Long compId, UpdateCompilationRequest updateRequest) {
         Compilation compilation = compilationRepository.findById(compId)
-                .orElseThrow(() -> new NotFoundException("Compilation with id=" + compId + " was not found"));
+                .orElseThrow(() -> new NotFoundException("Compilation с id=" + compId + " не найдена"));
 
         if (updateRequest.getTitle() != null) {
             compilation.setTitle(updateRequest.getTitle());
@@ -85,7 +84,7 @@ public class CompilationServiceImpl implements CompilationService {
             Compilation updated = compilationRepository.save(compilation);
             return Mapper.toCompilationDto(updated);
         } catch (Exception e) {
-            throw new ConflictException("Compilation with this title already exists");
+            throw new ConflictException("Compilation с данным именем уже существует");
         }
     }
 
@@ -108,7 +107,7 @@ public class CompilationServiceImpl implements CompilationService {
     @Override
     public CompilationDto getCompilationById(Long compId) {
         Compilation compilation = compilationRepository.findById(compId)
-                .orElseThrow(() -> new NotFoundException("Compilation with id=" + compId + " was not found"));
+                .orElseThrow(() -> new NotFoundException("Compilation с id =" + compId + " не найдена"));
         return Mapper.toCompilationDto(compilation);
     }
 }

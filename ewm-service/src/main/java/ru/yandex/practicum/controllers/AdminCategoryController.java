@@ -1,6 +1,7 @@
 package ru.yandex.practicum.controllers;
 
 import lombok.RequiredArgsConstructor;
+import org.apache.coyote.BadRequestException;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.model.dto.CategoryDto;
@@ -19,7 +20,7 @@ public class AdminCategoryController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public CategoryDto addCategory(@RequestBody @Valid NewCategoryDto dto) {
+    public CategoryDto addCategory(@RequestBody @Valid NewCategoryDto dto) throws BadRequestException {
         return categoryService.createCategory(dto);
     }
 

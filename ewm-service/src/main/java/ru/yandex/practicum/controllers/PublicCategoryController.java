@@ -18,7 +18,7 @@ public class PublicCategoryController  {
             @RequestParam(defaultValue = "0") int from,      // Должно быть строго 0
             @RequestParam(defaultValue = "10") int size       // Должно быть строго 10
     ) {
-        return categoryService.getCategories(from, size);
+        return categoryService.getCompilationsOrCategories(from, size);
     }
 
     @GetMapping("/{catId}")

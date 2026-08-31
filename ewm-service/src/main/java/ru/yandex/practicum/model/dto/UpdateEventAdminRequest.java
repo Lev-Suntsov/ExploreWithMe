@@ -24,15 +24,11 @@ public class UpdateEventAdminRequest {
 
     private Location location;
 
-    @NotNull(message = "paid не может быть пустым")
     private Boolean paid;
-    @NotNull(message = "participantLimit не может быть пустым")
     private Integer participantLimit;
-    @NotNull(message = "requestModeration не может быть пустым")
     private Boolean requestModeration;
 
     private AdminStateAction stateAction;
 
-    @NotBlank(message = "title не может быть пустым")
     private String title;
 }

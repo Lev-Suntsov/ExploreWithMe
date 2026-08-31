@@ -37,14 +37,18 @@ public class Mapper {
         dto.setLocation(event.getLocation());
         dto.setTitle(event.getTitle());
         dto.setParticipantLimit(event.getParticipantLimit());
+        dto.setState(event.getState());
+        dto.setRequestModeration(event.isRequestModeration());
+        dto.setCreatedOn(event.getCreatedOn());
+        dto.setPublishedOn(event.getPublishedOn());
         return dto;
     }
 
     public static Event fromEventDtoToEntity(EventDto dto) {
         if (dto == null) return null;
         Event event = new Event();
-        event.setId(dto.getId());
-        event.setAnnotation(dto.getAnnotation());
+        event.setId(event.getId());
+        dto.setAnnotation(dto.getAnnotation());
         event.setCategory(dto.getCategory() != null ? fromCategoryDtoToEntity(dto.getCategory()) : null);
         event.setEventDate(dto.getEventDate());
         event.setDescription(dto.getDescription());
@@ -53,6 +57,10 @@ public class Mapper {
         event.setLocation(dto.getLocation());
         event.setTitle(dto.getTitle());
         event.setParticipantLimit(dto.getParticipantLimit());
+        event.setState(dto.getState());
+        event.setRequestModeration(dto.isRequestModeration());
+        event.setCreatedOn(dto.getCreatedOn());
+        event.setPublishedOn(dto.getPublishedOn());
         return event;
     }
 

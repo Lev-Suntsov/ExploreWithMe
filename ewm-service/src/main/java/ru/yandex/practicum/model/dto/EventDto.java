@@ -3,6 +3,7 @@ package ru.yandex.practicum.model.dto;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 import ru.yandex.practicum.model.Location;
+import ru.yandex.practicum.model.state.EventState;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
@@ -33,6 +34,8 @@ public class EventDto {
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     @NotNull(message = "createdOn не может быть пустым")
     private LocalDateTime createdOn;
+
+    private EventState state;
 
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime publishedOn;

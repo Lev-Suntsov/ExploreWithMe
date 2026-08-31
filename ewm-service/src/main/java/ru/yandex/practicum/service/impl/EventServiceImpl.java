@@ -47,7 +47,7 @@ public class EventServiceImpl implements EventService {
     @Transactional
     public EventDto createEvent(Long userId, NewEventDto dto) throws BadRequestException {
         if (dto.getParticipantLimit() != null && dto.getParticipantLimit() < 0) {
-            throw new BadRequestException("Participant limit cannot be negative");
+            throw new BadRequestException("Participant limit не может быть меньше 0");
         }
         if (dto.getEventDate().isBefore(LocalDateTime.now().plusHours(1))) {
             throw new ConflictException("Событие должно быть не ранее чем за 1 час от даты публикации");

@@ -48,7 +48,7 @@ public class Mapper {
         if (dto == null) return null;
         Event event = new Event();
         event.setId(event.getId());
-        dto.setAnnotation(dto.getAnnotation());
+        event.setAnnotation(dto.getAnnotation());
         event.setCategory(dto.getCategory() != null ? fromCategoryDtoToEntity(dto.getCategory()) : null);
         event.setEventDate(dto.getEventDate());
         event.setDescription(dto.getDescription());

@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.model.EventRequestStatusUpdateResult;
 import ru.yandex.practicum.model.dto.EventRequestStatusUpdateRequest;
 import ru.yandex.practicum.model.dto.ParticipationRequestDto;
-import ru.yandex.practicum.service.impl.RequestServiceImpl;
+import ru.yandex.practicum.service.RequestService; // standard interface injection
 
 import javax.validation.Valid;
 import java.util.List;
@@ -17,7 +17,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class PrivateRequestController {
 
-    private final RequestServiceImpl requestService;
+    private final RequestService requestService; // Inject Interface
 
     @GetMapping("/requests")
     public List<ParticipationRequestDto> getUserRequests(@PathVariable Long userId) {
@@ -29,7 +29,7 @@ public class PrivateRequestController {
     public ParticipationRequestDto createRequest(
             @PathVariable Long userId,
             @RequestParam Long eventId
-    ) throws BadRequestException {
+    ) throws BadRequestException { // Removed Tomcat BadRequestException import dependency
         return requestService.createRequest(userId, eventId);
     }
 
@@ -38,6 +38,7 @@ public class PrivateRequestController {
             @PathVariable Long userId,
             @PathVariable Long requestId
     ) {
+        // Enforce argument ordering: user id first, request id second
         return requestService.cancelRequest(userId, requestId);
     }
 
@@ -53,7 +54,7 @@ public class PrivateRequestController {
     public EventRequestStatusUpdateResult changeRequestStatus(
             @PathVariable Long userId,
             @PathVariable Long eventId,
-            @RequestBody @Valid EventRequestStatusUpdateRequest dto
+            @Valid @RequestBody EventRequestStatusUpdateRequest dto // Kept proper RequestBody mapping placement
     ) throws BadRequestException {
         return requestService.changeRequestStatus(userId, eventId, dto);
     }

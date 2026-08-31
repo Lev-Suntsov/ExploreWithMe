@@ -54,5 +54,17 @@ public class ErrorHandler {
                 LocalDateTime.now()
         );
     }
+
+    @ExceptionHandler(ConflictException.class)
+    @ResponseStatus(HttpStatus.CONFLICT)
+    public ApiError handleConflictException(final ConflictException e) {
+        return new ApiError("CONFLICT", "Integrity constraint has been violated.", e.getMessage(), LocalDateTime.now());
+    }
+
+    @ExceptionHandler(NotFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public ApiError handleNotFoundException(final NotFoundException e) {
+        return new ApiError("NOT_FOUND", "The required object was not found.", e.getMessage(), LocalDateTime.now());
+    }
 }
 

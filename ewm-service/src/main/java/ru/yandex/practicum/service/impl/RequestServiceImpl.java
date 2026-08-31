@@ -3,6 +3,7 @@ package ru.yandex.practicum.service.impl;
 import lombok.AllArgsConstructor;
 import org.apache.coyote.BadRequestException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.yandex.practicum.exeptions.ConflictException;
 import ru.yandex.practicum.exeptions.NotFoundException;
 import ru.yandex.practicum.model.Event;
@@ -32,6 +33,7 @@ public class RequestServiceImpl implements RequestService {
     private final RequestRepository requestRepository;
     private final UserRepository userRepository;
 
+    @Transactional
     @Override
     public ParticipationRequestDto createRequest(Long userId, Long eventId) throws BadRequestException {
         User user = userRepository.findById(userId)
@@ -85,17 +87,11 @@ public class RequestServiceImpl implements RequestService {
     }
 
     @Override
+    @Transactional
     public ParticipationRequestDto cancelRequest(Long userId, Long requestId) {
         ParticipationRequest request = requestRepository.findByIdAndRequesterId(requestId, userId)
                 .orElseThrow(() -> new NotFoundException("Request с id=" + requestId + " не найден"));
 
-        if (request.getStatus() == RequestStatus.REJECTED) {
-            throw new ConflictException("Можно отменять только PENDING или CONFIRMED");
-        }
-
-        if (request.getStatus() == RequestStatus.CANCELED) {
-            throw new ConflictException("Реквест уже закрыт");
-        }
         request.setStatus(RequestStatus.CANCELED);
 
         ParticipationRequest saved = requestRepository.save(request);

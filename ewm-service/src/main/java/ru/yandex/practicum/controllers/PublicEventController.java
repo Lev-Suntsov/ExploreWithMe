@@ -15,6 +15,7 @@ import ru.yandex.practicum.model.dto.EventShortDto;
 import ru.yandex.practicum.service.impl.EventServiceImpl;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.validation.Valid;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -70,7 +71,7 @@ public class PublicEventController {
         return eventService.findPublicEvent(id);
     }
 
-    private void saveHit(HttpServletRequest request) {
+    private void saveHit(@Valid HttpServletRequest request) {
         EndpointHitDto hit = new EndpointHitDto();
 
         hit.setApp("ewm-main-service");

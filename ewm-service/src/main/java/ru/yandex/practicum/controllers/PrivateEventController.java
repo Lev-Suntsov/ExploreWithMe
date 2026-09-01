@@ -53,7 +53,7 @@ public class PrivateEventController {
     public EventDto updateEvent(
             @PathVariable @NotNull(message = "id не может быть пустым") Long userId,
             @PathVariable @NotNull(message = "id не может быть пустым") Long eventId,
-            @RequestBody  UpdateEventUserRequest dto
+            @RequestBody  @Valid UpdateEventUserRequest dto
     ) throws BadRequestException {
         return eventService.updateEvent(userId, eventId, dto);
     }

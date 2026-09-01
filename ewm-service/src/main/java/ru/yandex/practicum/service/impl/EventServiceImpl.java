@@ -336,7 +336,7 @@ public class EventServiceImpl implements EventService {
 
         final List<ViewStats> finalStats = stats;
 
-        return events.stream()
+        List<EventShortDto> sortedShortEvents = events.stream()
                 .filter(event -> !onlyAvailable || isAvailable(event))
                 .map(event -> {
                     EventDto dto = Mapper.toEventDto(event);
@@ -351,12 +351,14 @@ public class EventServiceImpl implements EventService {
                     dto.setViews(hits == 0L ? 1L : hits);
                     return dto;
                 })
-                .map(dto -> {
-                    EventShortDto shortDto = Mapper.toEventShortDto(dto);
-                    shortDto.setViews(dto.getViews());
-                    return shortDto;
-                })
+                .map(Mapper::toEventShortDto)
                 .collect(Collectors.toList());
+
+        if (sort != null && sort.equalsIgnoreCase("VIEWS")) {
+            sortedShortEvents.sort((e1, e2) -> Long.compare(e2.getViews(), e1.getViews()));
+        }
+
+        return sortedShortEvents;
     }
 
     @Override

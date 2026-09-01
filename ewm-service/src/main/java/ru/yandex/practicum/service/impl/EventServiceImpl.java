@@ -217,7 +217,7 @@ public class EventServiceImpl implements EventService {
 
         return Mapper.toEventDto(eventRepository.save(event));
     }
-    
+
     @Override
     public EventDto findPublicEvent(Long eventId) {
         Event event = eventRepository.findById(eventId)

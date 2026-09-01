@@ -91,6 +91,7 @@ public class Mapper {
         dto.setRequester(request.getRequester() != null ? request.getRequester().getId() : null);
         dto.setEvent(request.getEvent() != null ? request.getEvent().getId() : null);
 
+        dto.setStatus(request.getStatus());
         dto.setCreated(request.getCreated());
         return dto;
     }

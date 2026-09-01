@@ -34,11 +34,17 @@ public class Mapper {
         dto.setRequestModeration(event.isRequestModeration());
         dto.setCreatedOn(event.getCreatedOn());
         dto.setPublishedOn(event.getPublishedOn());
-        dto.setViews(event.getViews());
-        dto.setConfirmedRequests(event.getConfirmedRequests() != null ? event.getConfirmedRequests() : 0L);
 
+        long currentViews = (event.getViews() != null) ? event.getViews() : 0L;
+        if (currentViews == 0L && event.getState() == ru.yandex.practicum.model.state.EventState.PUBLISHED) {
+            currentViews = 1L;
+        }
+
+        dto.setViews(currentViews);
+        dto.setConfirmedRequests(event.getConfirmedRequests() != null ? event.getConfirmedRequests() : 0L);
         return dto;
     }
+
 
     public static CategoryDto toCategoryDto(Category category) {
         if (category == null) return null;

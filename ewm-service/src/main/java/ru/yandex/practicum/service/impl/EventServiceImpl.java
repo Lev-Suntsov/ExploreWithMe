@@ -200,13 +200,20 @@ public class EventServiceImpl implements EventService {
         if (updateRequest.getParticipantLimit() != null) event.setParticipantLimit(updateRequest.getParticipantLimit());
         if (updateRequest.getPaid() != null) event.setPaid(updateRequest.getPaid());
         if (updateRequest.getRequestModeration() != null) event.setRequestModeration(updateRequest.getRequestModeration());
-        if (updateRequest.getEventDate() != null) event.setEventDate(updateRequest.getEventDate());
         if (updateRequest.getLocation() != null) event.setLocation(updateRequest.getLocation());
         if (updateRequest.getCategory() != null) {
             Category category = categoryRepository.findById(updateRequest.getCategory())
                     .orElseThrow(() -> new NotFoundException("Category not found"));
             event.setCategory(category);
         }
+
+        if (updateRequest.getEventDate() != null) {
+            if (updateRequest.getEventDate().isBefore(LocalDateTime.now())) {
+                throw new BadRequestException("Event date cannot be configured to a time in the past.");
+            }
+            event.setEventDate(updateRequest.getEventDate());
+        }
+
 
         return Mapper.toEventDto(eventRepository.save(event));
     }

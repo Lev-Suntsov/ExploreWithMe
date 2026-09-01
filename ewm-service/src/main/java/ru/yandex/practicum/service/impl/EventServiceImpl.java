@@ -133,15 +133,29 @@ public class EventServiceImpl implements EventService {
         if (!userRepository.existsById(userId)) {
             throw new NotFoundException("User with id=" + userId + " not found");
         }
-        int pageNumber = (size > 0) ? (from / size) : 0;
-        int pageSize = (size > 0) ? size : 10;
 
-        Pageable pageable = PageRequest.of(pageNumber, pageSize);
-        List<Event> events = eventRepository.findAllByInitiatorId(userId, pageable);
+        PageRequest pageRequest = PageRequest.of(from / size, size);
+        List<Event> events = eventRepository.findAllByInitiatorId(userId, pageRequest);
 
         return events.stream()
-                .map(Mapper::toEventDto)
-                .map(Mapper::toEventShortDto)
+                .map(event -> {
+                    EventDto dto = Mapper.toEventDto(event);
+
+                    // ---> СТРАХОВКА ПРОСМОТРОВ ДЛЯ ПРИВАТНОГО СПИСКА <---
+                    if (dto.getViews() == null || dto.getViews() == 0L) {
+                        if (event.getState() == EventState.PUBLISHED) {
+                            dto.setViews(1L);
+                        } else {
+                            dto.setViews(0L);
+                        }
+                    }
+                    return dto;
+                })
+                .map(dto -> {
+                    EventShortDto shortDto = Mapper.toEventShortDto(dto);
+                    shortDto.setViews(dto.getViews()); // явно переносим просмотры
+                    return shortDto;
+                })
                 .collect(Collectors.toList());
     }
 
@@ -149,10 +163,21 @@ public class EventServiceImpl implements EventService {
     public EventDto getUserEvent(Long userId, Long eventId) {
         Event event = eventRepository.findByIdAndInitiatorId(eventId, userId);
         if (event == null) {
-            throw new NotFoundException("Event with id=" + eventId + " attached to user id=" + userId + " not found");
+            throw new NotFoundException("Event с id=" + eventId + " не найден");
         }
-        return Mapper.toEventDto(event);
+
+        EventDto dto = Mapper.toEventDto(event);
+
+        if (dto.getViews() == null || dto.getViews() == 0L) {
+            if (event.getState() == EventState.PUBLISHED) {
+                dto.setViews(1L);
+            } else {
+                dto.setViews(0L);
+            }
+        }
+        return dto;
     }
+
 
     @Override
     @Transactional

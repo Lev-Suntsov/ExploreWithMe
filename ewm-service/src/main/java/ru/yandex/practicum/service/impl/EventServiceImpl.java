@@ -421,6 +421,12 @@ public class EventServiceImpl implements EventService {
                 .map(event -> {
                     EventDto dto = Mapper.toEventDto(event);
 
+                    long confirmedRequest = requestRepository.countByEventIdAndStatus(
+                            event.getId(),
+                            RequestStatus.CONFIRMED
+                    );
+                    dto.setConfirmedRequests(confirmedRequest);
+
                     long hits = (finalStats != null) ? finalStats.stream()
                             .filter(s -> s.getUri() != null && s.getUri().contains("/events/" + event.getId()))
                             .map(ViewStats::getHits)

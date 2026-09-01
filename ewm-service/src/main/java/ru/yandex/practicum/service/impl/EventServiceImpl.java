@@ -379,7 +379,7 @@ public class EventServiceImpl implements EventService {
         for (Event pubEvent : allPublishedEvents) {
             boolean alreadyExists = events.stream().anyMatch(e -> e.getId().equals(pubEvent.getId()));
             if (!alreadyExists) {
-                events.add(pubEvent); // Merge rows safely
+                events.add(pubEvent); // Blend missing target rows safely
             }
         }
 

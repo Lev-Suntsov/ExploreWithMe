@@ -85,10 +85,9 @@ public class Mapper {
         shortDto.setAnnotation(dto.getAnnotation());
         shortDto.setEventDate(dto.getEventDate());
         shortDto.setPaid(dto.isPaid());
-        shortDto.setViews(dto.getViews());
         shortDto.setConfirmedRequests(dto.getConfirmedRequests());
-        return shortDto;
-    }
+        shortDto.setViews(dto.getViews()); // Ensure this assignment line exists!
+        return shortDto;    }
 
     public static UserDto toUserDto(User user) {
         if (user == null) return null;

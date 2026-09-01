@@ -266,35 +266,53 @@ public class EventServiceImpl implements EventService {
             }
             return cb.and(predicates.toArray(new Predicate[0]));
         };
-        Page page = eventRepository.findAll(specification, pageable);
-        List<EventDto> events = page.getContent();
+        Page<Event> page = eventRepository.findAll(specification, pageable);
+        List<Event> events = page.getContent();
+
         return events.stream()
-                .filter(event -> !onlyAvailable || isAvailable(event)) // 1. Filter using the database Event entity cleanly
-                .map(Mapper::toEventShortDto)                          // 3. Convert EventDto -> EventShortDto
+                .filter(event -> !onlyAvailable || isAvailable(event))
+                .map(Mapper::toEventDto)        // First convert Event entity -> EventDto
+                .map(Mapper::toEventShortDto)   // Then convert EventDto -> EventShortDto
                 .collect(Collectors.toList());
 
     }
     @Override
     @Transactional
-    public EventRequestStatusUpdateResult ChangeRequestStatus(
-            Long userId, Long eventId, EventRequestStatusUpdateRequest dto
-    ) { // ---> ИСПРАВЛЕНО: Синтаксис и метод имени <---
+    public EventRequestStatusUpdateResult changeRequestStatus(
+                                                               Long userId, Long eventId, EventRequestStatusUpdateRequest dto
+    ) {
         Event event = eventRepository.findById(eventId)
-                .orElseThrow(() -> new NotFoundException("Событие с id=" + eventId + "не найдено"));
+                .orElseThrow(() -> new NotFoundException("Событие с id=" + eventId + " не найдено"));
+
         if (!event.getInitiator().getId().equals(userId)) {
-            throw new ConflictException("Пользователь не является инициатором этих событий.");
+            throw new ConflictException("Пользователь не является инициатором этого события.");
         }
+
         long confirmedRequests = requestRepository.countByEventIdAndStatus(eventId, RequestStatus.CONFIRMED);
+
+        // Проверка: нельзя подтверждать заявки, если лимит уже исчерпан изначально
         if (event.getParticipantLimit() > 0 && confirmedRequests >= event.getParticipantLimit()) {
-            throw new ConflictException("Достигнуто ограничение количества участников");
+            throw new ConflictException("Достигнут лимит участников для данного события.");
         }
+
         List<ParticipationRequest> requests = requestRepository.findAllById(dto.getRequestIds());
-        List confirmedList = new ArrayList<>();
-        List rejectedList = new ArrayList<>();
+
+        // Восстановлены Generics для списков DTO
+        List<ParticipationRequestDto> confirmedList = new ArrayList<>();
+        List<ParticipationRequestDto> rejectedList = new ArrayList<>();
+
         for (ParticipationRequest req : requests) {
             if (req.getStatus() != RequestStatus.PENDING) {
                 throw new ConflictException("Статус запроса должен быть PENDING");
             }
+
+            // Если лимит участников достигнут в процессе выполнения цикла, принудительно отклоняем все последующие
+            if (event.getParticipantLimit() > 0 && confirmedRequests >= event.getParticipantLimit()) {
+                req.setStatus(RequestStatus.REJECTED);
+                rejectedList.add(Mapper.participationRequestDtoFromEntity(requestRepository.save(req)));
+                continue;
+            }
+
             if (dto.getStatus().equals("CONFIRMED")) {
                 if (event.getParticipantLimit() == 0 || confirmedRequests < event.getParticipantLimit()) {
                     req.setStatus(RequestStatus.CONFIRMED);
@@ -311,13 +329,14 @@ public class EventServiceImpl implements EventService {
         }
         return new EventRequestStatusUpdateResult(confirmedList, rejectedList);
     }
+
     private Sort createSort(String sort) {
         if ("VIEWS".equalsIgnoreCase(sort)) {
             return Sort.by(Sort.Direction.DESC, "views");
         }
         return Sort.by(Sort.Direction.ASC, "eventDate");
     }
-    private boolean isAvailable(EventDto event) {
+    private boolean isAvailable(Event event) {
         long confirmedRequests = requestRepository.countByEventIdAndStatus(
                 event.getId(),
                 RequestStatus.CONFIRMED

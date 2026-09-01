@@ -41,7 +41,7 @@ public interface EventService {
             int size
     );
 
-    EventRequestStatusUpdateResult ChangeRequestStatus(
+    EventRequestStatusUpdateResult changeRequestStatus(
             Long userId, Long eventId, EventRequestStatusUpdateRequest dto);
 
     EventDto updateEventByAdmin(Long eventId, UpdateEventAdminRequest updateRequest);

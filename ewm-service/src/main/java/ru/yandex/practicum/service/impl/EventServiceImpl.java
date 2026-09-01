@@ -352,13 +352,6 @@ public class EventServiceImpl implements EventService {
                 .filter(e -> e.getState() == EventState.PUBLISHED)
                 .collect(Collectors.toList());
 
-        for (Event pubEvent : allPublishedEvents) {
-            boolean alreadyExists = events.stream().anyMatch(e -> e.getId().equals(pubEvent.getId()));
-            if (!alreadyExists) {
-                events.add(pubEvent);
-            }
-        }
-
         if (events.isEmpty()) {
             return Collections.emptyList();
         }

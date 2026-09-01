@@ -44,5 +44,5 @@ public interface EventService {
     EventRequestStatusUpdateResult changeRequestStatus(
             Long userId, Long eventId, EventRequestStatusUpdateRequest dto);
 
-    EventDto updateEventByAdmin(Long eventId, UpdateEventAdminRequest updateRequest);
+    EventDto updateEventByAdmin(Long eventId, UpdateEventAdminRequest updateRequest) throws BadRequestException;
 }

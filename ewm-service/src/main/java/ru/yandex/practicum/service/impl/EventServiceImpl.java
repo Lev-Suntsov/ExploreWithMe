@@ -47,6 +47,12 @@ public class EventServiceImpl implements EventService {
             throw new ConflictException("Событие должно быть не ранее чем за 2 часа от даты публикации");
         }
 
+        // Inside createEvent in EventServiceImpl.java
+        if (dto.getEventDate().isBefore(LocalDateTime.now().plusHours(2))) { // Enforce full 2 hour rule per ТЗ spec
+            throw new BadRequestException("Event date must be at least 2 hours in the future."); // <-- Change to BadRequestException
+        }
+
+
         User initiator = userRepository.findById(userId)
                 .orElseThrow(() -> new NotFoundException("Пользователь с id=" + userId + " не найден"));
         Category category = categoryRepository.findById(dto.getCategory())
@@ -146,7 +152,7 @@ public class EventServiceImpl implements EventService {
 
     @Override
     @Transactional
-    public EventDto updateEventByAdmin(Long eventId, UpdateEventAdminRequest updateRequest) {
+    public EventDto updateEventByAdmin(Long eventId, UpdateEventAdminRequest updateRequest) throws BadRequestException {
         Event event = eventRepository.findById(eventId)
                 .orElseThrow(() -> new NotFoundException("Event with id=" + eventId + " was not found"));
 
@@ -162,6 +168,25 @@ public class EventServiceImpl implements EventService {
                     throw new ConflictException("Cannot reject the event because it's already PUBLISHED.");
                 }
                 event.setState(EventState.CANCELED);
+            }
+
+            if (updateRequest.getTitle() != null) {
+                if (updateRequest.getTitle().isBlank() || updateRequest.getTitle().length() < 3 || updateRequest.getTitle().length() > 120) {
+                    throw new BadRequestException("Incorrect title capacity length");
+                }
+                event.setTitle(updateRequest.getTitle());
+            }
+            if (updateRequest.getAnnotation() != null) {
+                if (updateRequest.getAnnotation().isBlank() || updateRequest.getAnnotation().length() < 20 || updateRequest.getAnnotation().length() > 2000) {
+                    throw new BadRequestException("Incorrect annotation capacity length");
+                }
+                event.setAnnotation(updateRequest.getAnnotation());
+            }
+            if (updateRequest.getDescription() != null) {
+                if (updateRequest.getDescription().isBlank() || updateRequest.getDescription().length() < 20 || updateRequest.getDescription().length() > 7000) {
+                    throw new BadRequestException("Incorrect description capacity length");
+                }
+                event.setDescription(updateRequest.getDescription());
             }
         }
 

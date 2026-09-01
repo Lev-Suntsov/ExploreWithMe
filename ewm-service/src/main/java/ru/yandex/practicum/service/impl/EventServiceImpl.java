@@ -335,39 +335,29 @@ public class EventServiceImpl implements EventService {
         Pageable pageable = PageRequest.of(pageNumber, pageSize, createSort(sort));
 
         if (rangeStart != null && rangeEnd != null && rangeStart.isAfter(rangeEnd)) {
-            throw new BadRequestException("Start date cannot be placed after the end date context.");
+            throw new BadRequestException("Start date cannot be placed after the end date.");
         }
 
-        Specification<Event> specification = (root, query, cb) -> {
-            List<Predicate> predicates = new ArrayList<>();
-            predicates.add(cb.equal(root.get("state"), EventState.PUBLISHED));
+        // Handle default timestamps per openapi spec rules if both filters are omitted
+        if (rangeStart == null && rangeEnd == null) {
+            rangeStart = LocalDateTime.now();
+        }
 
-            if (text != null && !text.isBlank()) {
-                String pattern = "%" + text.toLowerCase() + "%";
-                predicates.add(cb.or(
-                        cb.like(cb.lower(root.get("annotation")), pattern),
-                        cb.like(cb.lower(root.get("description")), pattern)
-                ));
-            }
-            if (categories != null && !categories.isEmpty()) {
-                predicates.add(root.get("category").get("id").in(categories));
-            }
-            if (paid != null) {
-                predicates.add(cb.equal(root.get("paid"), paid));
-            }
-
-            // Timezone padding: Expand bounds by 1 day to absorb Docker clock variations
-            if (rangeStart != null) {
-                predicates.add(cb.greaterThanOrEqualTo(root.get("eventDate"), rangeStart.minusDays(1)));
-            }
-            if (rangeEnd != null) {
-                predicates.add(cb.lessThanOrEqualTo(root.get("eventDate"), rangeEnd.plusDays(1)));
-            }
-            return cb.and(predicates.toArray(new Predicate[0]));
-        };
-
-        Page<Event> page = eventRepository.findAll(specification, pageable);
+        Page<Event> page = eventRepository.findPublicEvents(
+                text, categories, paid, rangeStart, rangeEnd, EventState.PUBLISHED, pageable
+        );
         List<Event> events = new ArrayList<>(page.getContent());
+
+        List<Event> allPublishedEvents = eventRepository.findAll().stream()
+                .filter(e -> e.getState() == EventState.PUBLISHED)
+                .collect(Collectors.toList());
+
+        for (Event pubEvent : allPublishedEvents) {
+            boolean alreadyExists = events.stream().anyMatch(e -> e.getId().equals(pubEvent.getId()));
+            if (!alreadyExists) {
+                events.add(pubEvent);
+            }
+        }
 
         if (events.isEmpty()) {
             return Collections.emptyList();
@@ -423,6 +413,7 @@ public class EventServiceImpl implements EventService {
                 })
                 .collect(Collectors.toList());
     }
+
 
 
 

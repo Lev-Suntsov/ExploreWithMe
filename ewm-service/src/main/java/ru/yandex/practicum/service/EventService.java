@@ -1,6 +1,7 @@
 package ru.yandex.practicum.service;
 
 import org.apache.coyote.BadRequestException;
+import org.springframework.transaction.annotation.Transactional;
 import ru.yandex.practicum.model.EventRequestStatusUpdateResult;
 import ru.yandex.practicum.model.dto.*;
 import ru.yandex.practicum.model.state.EventState;
@@ -17,17 +18,12 @@ public interface EventService {
 
     EventDto getUserEvent(Long userId, Long eventId);
 
+
     List<EventShortDto> findPublicEvents(
-            String text,
-            List<Long> categories,
-            Boolean paid,
-            LocalDateTime rangeStart,
-            LocalDateTime rangeEnd,
-            boolean onlyAvailable,
-            String sort,
-            int from,
-            int size
-    ) throws BadRequestException;
+            String text, List<Long> categories, Boolean paid,
+            LocalDateTime rangeStart, LocalDateTime rangeEnd,
+            boolean onlyAvailable, String sort, int from, int size
+    )throws BadRequestException;
 
     EventDto findPublicEvent(Long eventId);
 

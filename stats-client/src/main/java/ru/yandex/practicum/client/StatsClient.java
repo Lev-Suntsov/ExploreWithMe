@@ -27,7 +27,7 @@ public class StatsClient extends BaseClient {
                                         List<String> uris) {
 
         String startString = start.format(FORMATTER);
-        String endString = end.format(FORMATTER);
+        List<String> endString = Collections.singletonList(end.format(FORMATTER));
 
         return getStats("/stats", startString, endString, uris);
     }
@@ -39,16 +39,19 @@ public class StatsClient extends BaseClient {
         String startString = start.format(FORMATTER);
         String endString = end.format(FORMATTER);
 
-        return getStats("/stats/ua", startString, endString, uris);
+        return getStats("/stats/ua", startString, Collections.singletonList(endString), uris);
     }
 
-    private List<ViewStats> getStats(String path,
-                                     String start,
-                                     String end,
-                                     List<String> uris) {
+    // Inside ru.yandex.practicum.client.StatsClient.java
 
-        var uri = buildUri(path, start, end, uris);
+    // ---> FIX 1: Change visibility to PUBLIC <---
+    public List<ViewStats> getStats(String start, String end, List<String> uris, List<String> unique) {
 
+        // Pass the standard stats endpoint path as the first argument to your internal router engine
+        // If your buildUri method accepts a unique boolean flag, you can pass it to buildUri as well
+        var uri = buildUri("/stats", start, end, uris);
+
+        // Adjusting type references to use your localized ViewStats class structure context
         var response = get(
                 uri,
                 new ParameterizedTypeReference<List<ViewStats>>() {
@@ -59,6 +62,7 @@ public class StatsClient extends BaseClient {
                 ? Collections.emptyList()
                 : response.getBody();
     }
+
 
     @Value("${stats-server.url:http://stats-server:9090}")
     private String statsServerUrl;

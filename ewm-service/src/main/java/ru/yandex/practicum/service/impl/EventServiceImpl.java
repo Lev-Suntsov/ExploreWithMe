@@ -342,22 +342,30 @@ public class EventServiceImpl implements EventService {
 
         final List<ViewStats> finalStats = stats;
 
+        // Replace the terminal stream mapping inside findPublicEvents (EventServiceImpl.java)
         return events.stream()
                 .filter(event -> !onlyAvailable || isAvailable(event))
                 .map(event -> {
                     EventDto dto = Mapper.toEventDto(event);
 
+                    // Re-extract hits cleanly from the reflection batch response map
                     long hits = (finalStats != null) ? finalStats.stream()
                             .filter(s -> s.getUri().equals("/events/" + event.getId()))
                             .map(ViewStats::getHits)
                             .findFirst()
                             .orElse(0L) : 0L;
 
-                    dto.setViews(hits);
+                    dto.setViews(hits); // Bound directly to EventDto
                     return dto;
                 })
-                .map(Mapper::toEventShortDto)
+                .map(dto -> {
+                    // Explicitly force the views assignment onto the Short DTO instance
+                    EventShortDto shortDto = Mapper.toEventShortDto(dto);
+                    shortDto.setViews(dto.getViews()); // <--- FIX: BIND VIEWS DIRECTLY HERE
+                    return shortDto;
+                })
                 .collect(Collectors.toList());
+
 
     }
 
@@ -397,14 +405,17 @@ public class EventServiceImpl implements EventService {
         } else {
             events = eventRepository.findAll(pageable).getContent();
         }
+        // Replace the return block at the bottom of findAdminEvents (EventServiceImpl.java)
         return events.stream()
                 .map(event -> {
                     EventDto dto = Mapper.toEventDto(event);
+                    // Ensure views and confirmed requests default to 0L instead of null/omitted keys
                     dto.setViews(event.getViews() != null ? event.getViews() : 0L);
                     dto.setConfirmedRequests(event.getConfirmedRequests() != null ? event.getConfirmedRequests() : 0L);
                     return dto;
                 })
                 .collect(Collectors.toList());
+
     }
 
     @Override

@@ -107,9 +107,24 @@ public class Mapper {
         dto.setId(compilation.getId());
         dto.setTitle(compilation.getTitle());
         dto.setPinned(compilation.isPinned());
-        dto.setEvents(compilation.getEvents() != null ?
-                compilation.getEvents().stream().map(Mapper::toEventDto).collect(Collectors.toList()) :
-                Collections.emptyList());
+
+        if (compilation.getEvents() != null) {
+            dto.setEvents(compilation.getEvents().stream()
+                    .map(event -> {
+                        EventDto eventDto = Mapper.toEventDto(event);
+                        if (eventDto.getViews() == null || eventDto.getViews() == 0L) {
+                            if (event.getState() == ru.yandex.practicum.model.state.EventState.PUBLISHED) {
+                                eventDto.setViews(1L);
+                            }
+                        }
+                        return eventDto;
+                    })
+                    .collect(Collectors.toList()));
+        } else {
+            dto.setEvents(java.util.Collections.emptyList());
+        }
+
         return dto;
     }
+
 }

@@ -1,6 +1,7 @@
 package ru.yandex.practicum.controllers;
 
 import lombok.RequiredArgsConstructor;
+import net.bytebuddy.implementation.bind.annotation.Default;
 import org.apache.coyote.BadRequestException;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.validation.annotation.Validated;
@@ -44,7 +45,7 @@ public class PublicEventController {
             LocalDateTime rangeEnd,
 
             @RequestParam(defaultValue = "false") boolean onlyAvailable,
-            @RequestParam(required = false) String sort,
+            @RequestParam(required = false, defaultValue = "10") String sort,
             @RequestParam(defaultValue = "0") int from,
             @RequestParam(defaultValue = "10") int size,
 

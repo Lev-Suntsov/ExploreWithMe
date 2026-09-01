@@ -7,14 +7,6 @@ import java.util.Collections;
 import java.util.stream.Collectors;
 
 public class Mapper {
-    public static User fromDtoToUser(UserDto dto) {
-        if (dto == null) return null;
-        User user = new User();
-        user.setId(dto.getId());
-        user.setEmail(dto.getEmail());
-        user.setName(dto.getName());
-        return user;
-    }
 
     public static UserDto fromEntity(User user) {
         if (user == null) return null;
@@ -48,26 +40,6 @@ public class Mapper {
         return dto;
     }
 
-    public static Event fromEventDtoToEntity(EventDto dto) {
-        if (dto == null) return null;
-        Event event = new Event();
-        event.setId(dto.getId());
-        event.setAnnotation(dto.getAnnotation());
-        event.setCategory(dto.getCategory() != null ? fromCategoryDtoToEntity(dto.getCategory()) : null);
-        event.setEventDate(dto.getEventDate());
-        event.setDescription(dto.getDescription());
-        event.setInitiator(dto.getInitiator() != null ? fromDtoToUser(dto.getInitiator()) : null);
-        event.setPaid(dto.isPaid());
-        event.setLocation(dto.getLocation());
-        event.setTitle(dto.getTitle());
-        event.setParticipantLimit(dto.getParticipantLimit());
-        event.setState(dto.getState());
-        event.setRequestModeration(dto.isRequestModeration());
-        event.setCreatedOn(dto.getCreatedOn());
-        event.setPublishedOn(dto.getPublishedOn());
-        return event;
-    }
-
     public static CategoryDto toCategoryDto(Category category) {
         if (category == null) return null;
         CategoryDto dto = new CategoryDto();
@@ -97,41 +69,6 @@ public class Mapper {
         return dto;
     }
 
-    public static ParticipationRequest participationRequestFromDto(ParticipationRequestDto dto) {
-        if (dto == null) return null;
-        ParticipationRequest request = new ParticipationRequest();
-        request.setId(dto.getId());
-        request.setCreated(dto.getCreated());
-
-        // If your database relationship expects entities, bind them using skeleton entity proxies:
-        if (dto.getEvent() != null) {
-            Event event = new Event();
-            event.setId(dto.getEvent());
-            request.setEvent(event);
-        }
-        if (dto.getRequester() != null) {
-            User requester = new User();
-            requester.setId(dto.getRequester());
-            request.setRequester(requester);
-        }
-
-        request.setStatus(dto.getStatus());
-        return request;
-    }
-
-    public static NewEventDto toNewEventDto(EventDto eventDto) {
-        if (eventDto == null) return null;
-        NewEventDto newEventDto = new NewEventDto();
-        newEventDto.setAnnotation(eventDto.getAnnotation());
-        newEventDto.setCategory(eventDto.getCategory() != null ? eventDto.getCategory().getId() : null);
-        newEventDto.setDescription(eventDto.getDescription());
-        newEventDto.setEventDate(eventDto.getEventDate());
-        newEventDto.setLocation(eventDto.getLocation());
-        newEventDto.setPaid(eventDto.isPaid());
-        newEventDto.setTitle(eventDto.getTitle());
-        return newEventDto;
-    }
-
     public static EventShortDto toEventShortDto(EventDto dto) {
         if (dto == null) return null;
         EventShortDto shortDto = new EventShortDto();
@@ -142,6 +79,8 @@ public class Mapper {
         shortDto.setAnnotation(dto.getAnnotation());
         shortDto.setEventDate(dto.getEventDate());
         shortDto.setPaid(dto.isPaid());
+        shortDto.setViews(dto.getViews());
+        shortDto.setConfirmedRequests(dto.getConfirmedRequests());
         return shortDto;
     }
 

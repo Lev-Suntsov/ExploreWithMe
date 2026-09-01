@@ -358,6 +358,7 @@ public class EventServiceImpl implements EventService {
                 })
                 .map(Mapper::toEventShortDto)
                 .collect(Collectors.toList());
+
     }
 
 
@@ -397,7 +398,12 @@ public class EventServiceImpl implements EventService {
             events = eventRepository.findAll(pageable).getContent();
         }
         return events.stream()
-                .map(Mapper::toEventDto)
+                .map(event -> {
+                    EventDto dto = Mapper.toEventDto(event);
+                    dto.setViews(event.getViews() != null ? event.getViews() : 0L);
+                    dto.setConfirmedRequests(event.getConfirmedRequests() != null ? event.getConfirmedRequests() : 0L);
+                    return dto;
+                })
                 .collect(Collectors.toList());
     }
 

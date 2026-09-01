@@ -16,4 +16,6 @@ public class EventShortDto {
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime eventDate;
     private boolean paid;
+    private Long views;
+    private Long confirmedRequests;
 }

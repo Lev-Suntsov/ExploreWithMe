@@ -58,18 +58,18 @@ public class RequestServiceImpl implements RequestService {
         int participantLimit = event.getParticipantLimit();
 
         ParticipationRequest request = new ParticipationRequest();
-        request.setRequester(user);
-        request.setEvent(event);
         request.setCreated(LocalDateTime.now());
+        request.setEvent(event);
+        request.setRequester(user);
 
-        if (participantLimit == 0 || confirmedCount < participantLimit) {
+// ---> FIX THIS STATUS AUTO-APPROVAL CONDITION <---
+        if (!event.isRequestModeration() || event.getParticipantLimit() == 0) {
             request.setStatus(RequestStatus.CONFIRMED);
         } else {
-            request.setStatus(RequestStatus.PENDING);
+            request.setStatus(RequestStatus.PENDING); // MUST be PENDING if moderated and limited
         }
 
         ParticipationRequest saved = requestRepository.save(request);
-
         return Mapper.participationRequestDtoFromEntity(saved);
     }
 

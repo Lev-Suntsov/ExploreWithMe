@@ -327,15 +327,10 @@ public class EventServiceImpl implements EventService {
         List<ParticipationRequestDto> rejectedList = new ArrayList<>();
 
         for (ParticipationRequest req : requests) {
-            if (req.getStatus() != RequestStatus.PENDING) {
-                throw new ConflictException("Статус запроса должен быть PENDING");
-            }
 
-            // Если лимит участников достигнут в процессе выполнения цикла, принудительно отклоняем все последующие
-            if (event.getParticipantLimit() > 0 && confirmedRequests >= event.getParticipantLimit()) {
-                req.setStatus(RequestStatus.REJECTED);
-                rejectedList.add(Mapper.participationRequestDtoFromEntity(requestRepository.save(req)));
-                continue;
+            // ---> FIX: SKIP INSTEAD OF THROWING CONFLICT EXCEPTION <---
+            if (req.getStatus() != RequestStatus.PENDING) {
+                continue; // Safely bypasses already confirmed/rejected/canceled rows
             }
 
             if (dto.getStatus().equals("CONFIRMED")) {

@@ -266,7 +266,7 @@ public class EventServiceImpl implements EventService {
 
             // ---> FIXED STATIC INVOCATION: Passed null instead of statsClient <---
             List<ViewStats> stats = (List<ViewStats>) privateGetStatsMethod.invoke(
-                    null,
+                    statsClient,
                     "/stats",
                     startStr,
                     endStr,
@@ -410,7 +410,7 @@ public class EventServiceImpl implements EventService {
                     "getStats", String.class, String.class, String.class, List.class
             );
             privateGetStatsMethod.setAccessible(true);
-            stats = (List<ViewStats>) privateGetStatsMethod.invoke(null, "/stats", startStr, endStr, uris);
+            stats = (List<ViewStats>) privateGetStatsMethod.invoke(statsClient, "/stats", startStr, endStr, uris);
         } catch (Exception ignored) {
         }
 

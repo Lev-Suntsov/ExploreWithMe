@@ -1,6 +1,7 @@
 package ru.yandex.practicum.controllers;
 
 import lombok.RequiredArgsConstructor;
+import org.apache.coyote.BadRequestException;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -48,7 +49,7 @@ public class PublicEventController {
             @RequestParam(defaultValue = "10") int size,
 
             HttpServletRequest request
-    ) {
+    ) throws BadRequestException {
         saveHit(request);
 
         return eventService.findPublicEvents(

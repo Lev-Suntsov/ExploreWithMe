@@ -44,7 +44,16 @@ public class RequestServiceImpl implements RequestService {
         }
 
         Event event = eventRepository.findById(eventId)
-                .orElseThrow(() -> new NotFoundException("Event with id=" + eventId + " was not found"));
+                .orElseThrow(() -> new NotFoundException("Event not found"));
+
+        if (event.getInitiator().getId().equals(userId)) {
+            throw new ConflictException("The event initiator cannot create a participation request for their own event.");
+        }
+
+        long confirmedRequests = requestRepository.countByEventIdAndStatus(eventId, RequestStatus.CONFIRMED);
+        if (event.getParticipantLimit() > 0 && confirmedRequests >= event.getParticipantLimit()) {
+            throw new ConflictException("The participant limit for this event has already been reached.");
+        }
 
         if (event.getState() != EventState.PUBLISHED) {
             throw new ConflictException("Cannot participate in an unpublished event.");

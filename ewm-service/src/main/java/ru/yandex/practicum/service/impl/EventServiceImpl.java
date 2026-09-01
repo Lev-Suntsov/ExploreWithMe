@@ -259,11 +259,11 @@ public class EventServiceImpl implements EventService {
     }
     @Override
     @Transactional
-    public List findPublicEvents(
+    public List<EventShortDto> findPublicEvents(
             String text, List categories, Boolean paid,
             LocalDateTime rangeStart, LocalDateTime rangeEnd,
             boolean onlyAvailable, String sort, int from, int size
-    ) {
+    ) throws BadRequestException {
         int pageNumber = (size > 0) ? (from / size) : 0;
         int pageSize = (size > 0) ? size : 10;
         Pageable pageable = PageRequest.of(pageNumber, pageSize, createSort(sort));
@@ -289,8 +289,12 @@ public class EventServiceImpl implements EventService {
             if (rangeEnd != null) {
                 predicates.add(cb.lessThanOrEqualTo(root.get("eventDate"), rangeEnd));
             }
+
             return cb.and(predicates.toArray(new Predicate[0]));
         };
+        if (rangeStart != null && rangeEnd != null && rangeStart.isAfter(rangeEnd)) {
+            throw new BadRequestException("The start date cannot be placed after the end date.");
+        }
         Page<Event> page = eventRepository.findAll(specification, pageable);
         List<Event> events = page.getContent();
 

@@ -27,7 +27,7 @@ public interface EventService {
             String sort,
             int from,
             int size
-    );
+    ) throws BadRequestException;
 
     EventDto findPublicEvent(Long eventId);
 

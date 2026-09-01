@@ -42,8 +42,9 @@ public class Mapper {
         dto.setRequestModeration(event.isRequestModeration());
         dto.setCreatedOn(event.getCreatedOn());
         dto.setPublishedOn(event.getPublishedOn());
-        dto.setConfirmedRequests(event.getConfirmedRequests() != null ? event.getConfirmedRequests() : 0L);
         dto.setViews(event.getViews() != null ? event.getViews() : 0L);
+        dto.setConfirmedRequests(event.getConfirmedRequests() != null ? event.getConfirmedRequests() : 0L);
+
         return dto;
     }
 

@@ -20,7 +20,7 @@ public abstract class BaseClient {
         this.restTemplate = restTemplate;
     }
 
-    protected static URI buildUri(String path,
+    protected URI buildUri(String path,
                                   String start,
                                   String end,
                                   List<String> uris) {
@@ -40,7 +40,7 @@ public abstract class BaseClient {
         return builder.encode().build().toUri();
     }
 
-    protected static <T> ResponseEntity<T> get(
+    protected <T> ResponseEntity<T> get(
             URI uri,
             ParameterizedTypeReference<T> responseType) {
 

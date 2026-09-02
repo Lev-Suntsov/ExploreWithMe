@@ -29,6 +29,7 @@ public class StatsServiceImpl implements StatsService {
                                         LocalDateTime end,
                                         List<String> uris) {
         List<StatsRow> rows;
+
         if (start.isAfter(end)) {
             throw new RuntimeException("время начала должно быть раньше конца");
         }
@@ -49,7 +50,7 @@ public class StatsServiceImpl implements StatsService {
                                            LocalDateTime end,
                                            List<String> uris) {
         List<StatsRow> rows;
-        
+
         if (start.isAfter(end)) {
             throw new RuntimeException("время начала должно быть раньше конца");
         }

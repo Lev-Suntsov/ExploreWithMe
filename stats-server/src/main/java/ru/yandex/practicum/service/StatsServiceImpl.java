@@ -29,6 +29,9 @@ public class StatsServiceImpl implements StatsService {
                                         LocalDateTime end,
                                         List<String> uris) {
         List<StatsRow> rows;
+        if (start.isAfter(end)) {
+            throw new RuntimeException("время начала должно быть раньше конца");
+        }
 
         if (uris == null || uris.isEmpty()) {
             rows = repository.findAllStatsWithoutUris(start, end);
@@ -46,6 +49,10 @@ public class StatsServiceImpl implements StatsService {
                                            LocalDateTime end,
                                            List<String> uris) {
         List<StatsRow> rows;
+        
+        if (start.isAfter(end)) {
+            throw new RuntimeException("время начала должно быть раньше конца");
+        }
 
         if (uris == null || uris.isEmpty()) {
             rows = repository.findUniqueStatsWithoutUris(start, end);

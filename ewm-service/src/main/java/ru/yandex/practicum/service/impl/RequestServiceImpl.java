@@ -50,7 +50,7 @@ public class RequestServiceImpl implements RequestService {
             throw new ConflictException("The event initiator cannot create a participation request for their own event.");
         }
 
-        long confirmedRequests = requestRepository.countByEventIdAndStatus(eventId, RequestStatus.CONFIRMED);
+        long confirmedRequests = requestRepository.countByEvent_IdAndStatus(eventId, RequestStatus.CONFIRMED);
         if (event.getParticipantLimit() > 0 && confirmedRequests >= event.getParticipantLimit()) {
             throw new ConflictException("The participant limit for this event has already been reached.");
         }

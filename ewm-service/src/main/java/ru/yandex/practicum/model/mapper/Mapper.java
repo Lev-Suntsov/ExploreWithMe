@@ -1,11 +1,14 @@
 package ru.yandex.practicum.model.mapper;
 
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 import ru.yandex.practicum.model.*;
 import ru.yandex.practicum.model.dto.*;
 
 import java.util.Collections;
 import java.util.stream.Collectors;
 
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class Mapper {
 
     public static UserDto fromEntity(User user) {

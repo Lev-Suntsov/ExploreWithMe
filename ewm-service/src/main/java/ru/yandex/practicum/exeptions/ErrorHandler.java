@@ -1,5 +1,8 @@
 package ru.yandex.practicum.exeptions; // проверьте ваш пакет
 
+import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -8,12 +11,16 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import java.time.LocalDateTime;
 
+@Slf4j
 @RestControllerAdvice
 public class ErrorHandler {
+
+    private static final Logger logger = LoggerFactory.getLogger(ErrorHandler.class);
 
     @ExceptionHandler(IllegalStateException.class)
     @ResponseStatus(HttpStatus.CONFLICT)
     public ApiError handleIllegalStateException(final IllegalStateException e) {
+        log.debug("Возникла ошибка" + e.getMessage());
         return new ApiError(
                 "CONFLICT",
                 "For the requested operation the conditions are not met.",
@@ -25,6 +32,8 @@ public class ErrorHandler {
     @ExceptionHandler(org.springframework.dao.DataIntegrityViolationException.class)
     @ResponseStatus(HttpStatus.CONFLICT)
     public ApiError handleDataIntegrityViolationException(final org.springframework.dao.DataIntegrityViolationException e) {
+        log.debug("Возникла ошибка" + e.getMessage());
+
         return new ApiError(
                 "CONFLICT",
                 "Integrity constraint has been violated.",

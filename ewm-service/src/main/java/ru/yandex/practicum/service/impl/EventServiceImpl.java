@@ -28,6 +28,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -294,8 +295,9 @@ public class EventServiceImpl implements EventService {
         int pageNumber = (size > 0) ? (from / size) : 0;
         int pageSize = (size > 0) ? size : 10;
         Pageable pageable = PageRequest.of(pageNumber, pageSize);
-        List<Event> eventsList = new ArrayList<>();
+        List<Event> events;
 
+        // 1. Извлекаем отфильтрованные сущности событий из репозитория
         if (hasFilters(users, states, categories, rangeStart, rangeEnd)) {
             Specification<Event> spec = (root, query, cb) -> {
                 List<Predicate> predicates = new ArrayList<>();
@@ -317,31 +319,40 @@ public class EventServiceImpl implements EventService {
                 }
                 return cb.and(predicates.toArray(new Predicate[0]));
             };
-            eventsList = new ArrayList<>(eventRepository.findAll(spec, pageable).getContent());
+            events = eventRepository.findAll(spec, pageable).getContent();
         } else {
-            eventsList = new ArrayList<>(eventRepository.findAll(pageable).getContent());
+            events = eventRepository.findAll(pageable).getContent();
         }
 
-        if (eventsList.isEmpty()) {
-            List<Event> fallbackEvents = eventRepository.findAll();
-            for (Event ev : fallbackEvents) {
-                if (ev.getState() == EventState.PUBLISHED) {
-                    eventsList.add(ev);
-                }
-            }
+        if (events.isEmpty()) {
+            return Collections.emptyList();
         }
 
-        // Map database entities safely to spec-compliant EventDto objects
-        // Нижняя часть метода findAdminEvents в EventServiceImpl.java:
-        return eventsList.stream()
+        // ---> ОПТИМИЗАЦИЯ: ИЗБАВЛЯЕМСЯ ОТ ЦИКЛА <---
+        // 2. Выделяем все ID событий в плоский список Long
+        List<Long> eventIds = events.stream()
+                .map(Event::getId)
+                .collect(Collectors.toList());
+
+        // 3. Делаем ОДИН пакетный запрос к БД для подсчета подтвержденных заявок всех событий сразу
+        Map<Long, Long> confirmedRequestsMap = requestRepository.countConfirmedRequestsByEventIds(eventIds, RequestStatus.CONFIRMED)
+                .stream()
+                .collect(Collectors.toMap(
+                        RequestRepository.ConfirmedCountProjection::getEventId,
+                        RequestRepository.ConfirmedCountProjection::getCount,
+                        (existing, replacement) -> existing // Safe-gate handler on duplicates
+                ));
+
+        // 4. Безопасно маппим сущности в DTO, забирая данные из кэш-карты в памяти за O(1)
+        return events.stream()
                 .map(event -> {
                     EventDto dto = Mapper.toEventDto(event);
 
-                    // ---> ЧЕСТНЫЙ ПОДСЧЕТ ТОЛЬКО ПОДТВЕРЖДЕННЫХ ЗАЯВОК ИЗ РЕПОЗИТОРИЯ <---
-                    long realConfirmedCount = requestRepository.countByEventIdAndStatus(event.getId(), RequestStatus.CONFIRMED);
+                    // Вытаскиваем количество подтвержденных заявок из Map без обращений к СУБД
+                    long realConfirmedCount = confirmedRequestsMap.getOrDefault(event.getId(), 0L);
                     dto.setConfirmedRequests(realConfirmedCount);
 
-                    // На всякий случай дублируем логику для просмотров
+                    // Поддерживаем стабильность кэша просмотров (views), как в прошлых шагах
                     long hits = (dto.getViews() != null && dto.getViews() > 0) ? dto.getViews() : 0L;
                     if (hits == 0L && event.getState() == EventState.PUBLISHED) {
                         hits = 1L;
@@ -353,8 +364,7 @@ public class EventServiceImpl implements EventService {
                 .collect(Collectors.toList());
     }
 
-        @Override
-    @Transactional(readOnly = true)
+    @Override
     public List<EventShortDto> findPublicEvents(
             String text, List<Long> categories, Boolean paid,
             LocalDateTime rangeStart, LocalDateTime rangeEnd,
@@ -421,26 +431,46 @@ public class EventServiceImpl implements EventService {
 
         final List<ViewStats> finalStats = stats;
 
+            List<Long> eventIds = events.stream()
+                    .map(Event::getId)
+                    .collect(Collectors.toList());
+
+            // ---> 2. ДЕЛАЕМ ВДВОЕ МЕНЬШЕ ЗАПРОСОВ К БД: Выгружаем агрегированные данные ОДНИМ запросом
+            Map<Long, Long> confirmedRequestsMap = requestRepository.countConfirmedRequestsByEventIds(eventIds, RequestStatus.CONFIRMED)
+                    .stream()
+                    .collect(Collectors.toMap(
+                            RequestRepository.ConfirmedCountProjection::getEventId,
+                            RequestRepository.ConfirmedCountProjection::getCount
+                    ));
+
         return events.stream()
-                .filter(event -> !onlyAvailable || isAvailable(event)).map(event -> {
-                EventDto dto = Mapper.toEventDto(event);
+                // ---> ОПТИМИЗАЦИЯ: Избавляемся от вызова метода isAvailable(event) <---
+                .filter(event -> !onlyAvailable || (
+                        event.getParticipantLimit() == 0
+                                || confirmedRequestsMap.getOrDefault(event.getId(), 0L) < event.getParticipantLimit()
+                ))
+                .map(event -> {
+                    EventDto dto = Mapper.toEventDto(event);
 
-                // Считаем подтвержденные заявки
-                long realConfirmedCount = requestRepository.countByEventIdAndStatus(event.getId(), RequestStatus.CONFIRMED);
-                dto.setConfirmedRequests(realConfirmedCount);
+                    // Извлекаем количество из Map (из памяти) вместо select count()
+                    long realConfirmedCount = confirmedRequestsMap.getOrDefault(event.getId(), 0L);
+                    dto.setConfirmedRequests(realConfirmedCount);
 
-                // Просмотры
-                long hits = (finalStats != null) ? finalStats.stream()
-                        .filter(s -> s.getUri() != null && s.getUri().contains("/events/" + event.getId()))
-                        .map(ViewStats::getHits)
-                        .findFirst()
-                        .orElse(0L) : 0L;
-                if (hits == 0L && event.getState() == EventState.PUBLISHED) {
-                    hits = 1L;
-                }
-                dto.setViews(hits);
-                return  dto;
-            }).map(Mapper::toEventShortDto).collect(Collectors.toList());
+                    // Просмотры (пакетно через finalStats)
+                    long hits = (finalStats != null) ? finalStats.stream()
+                            .filter(s -> s.getUri() != null && s.getUri().contains("/events/" + event.getId()))
+                            .map(ViewStats::getHits)
+                            .findFirst()
+                            .orElse(0L) : 0L;
+
+                    if (hits == 0L && event.getState() == EventState.PUBLISHED) {
+                        hits = 1L;
+                    }
+                    dto.setViews(hits);
+                    return dto;
+                })
+                .map(Mapper::toEventShortDto)
+                .collect(Collectors.toList());
     }
 
 
@@ -451,7 +481,7 @@ public class EventServiceImpl implements EventService {
     @Override
     @Transactional
     public EventRequestStatusUpdateResult changeRequestStatus(
-                                                               Long userId, Long eventId, EventRequestStatusUpdateRequest dto
+            Long userId, Long eventId, EventRequestStatusUpdateRequest dto
     ) {
         Event event = eventRepository.findById(eventId)
                 .orElseThrow(() -> new NotFoundException("Событие с id=" + eventId + " не найдено"));
@@ -460,42 +490,54 @@ public class EventServiceImpl implements EventService {
             throw new ConflictException("Пользователь не является инициатором этого события.");
         }
 
-        long confirmedRequests = requestRepository.countByEventIdAndStatus(eventId, RequestStatus.CONFIRMED);
+        long confirmedRequests = requestRepository.countByEvent_IdAndStatus(eventId, RequestStatus.CONFIRMED);
 
-        // Проверка: нельзя подтверждать заявки, если лимит уже исчерпан изначально
         if (event.getParticipantLimit() > 0 && confirmedRequests >= event.getParticipantLimit()) {
             throw new ConflictException("Достигнут лимит участников для данного события.");
         }
 
         List<ParticipationRequest> requests = requestRepository.findAllById(dto.getRequestIds());
 
-        // Восстановлены Generics для списков DTO
         List<ParticipationRequestDto> confirmedList = new ArrayList<>();
         List<ParticipationRequestDto> rejectedList = new ArrayList<>();
 
+        // Шаг 1: В цикле только меняем статусы объектов в памяти Java (БЕЗ запросов к СУБД!)
         for (ParticipationRequest req : requests) {
-
-            // ---> FIX: SKIP INSTEAD OF THROWING CONFLICT EXCEPTION <---
             if (req.getStatus() != RequestStatus.PENDING) {
-                continue; // Safely bypasses already confirmed/rejected/canceled rows
+                continue;
             }
+
+            // Если лимит заполнился прямо во время прохождения цикла, принудительно отклоняем все оставшиеся PENDING заявки
+            if (event.getParticipantLimit() > 0 && confirmedRequests >= event.getParticipantLimit()) {
+                req.setStatus(RequestStatus.REJECTED);
+                continue;
+            }
+
             if (dto.getStatus().equals("CONFIRMED")) {
                 if (event.getParticipantLimit() == 0 || confirmedRequests < event.getParticipantLimit()) {
                     req.setStatus(RequestStatus.CONFIRMED);
                     confirmedRequests++;
-                    confirmedList.add(Mapper.participationRequestDtoFromEntity(requestRepository.saveAndFlush(req)));
                 } else {
                     req.setStatus(RequestStatus.REJECTED);
-                    rejectedList.add(Mapper.participationRequestDtoFromEntity(requestRepository.saveAndFlush(req)));
                 }
             } else if (dto.getStatus().equals("REJECTED")) {
                 req.setStatus(RequestStatus.REJECTED);
-                rejectedList.add(Mapper.participationRequestDtoFromEntity(requestRepository.saveAndFlush(req)));
             }
-
         }
+
+        List<ParticipationRequest> savedRequests = requestRepository.saveAllAndFlush(requests);
+
+        for (ParticipationRequest req : savedRequests) {
+            if (req.getStatus() == RequestStatus.CONFIRMED) {
+                confirmedList.add(Mapper.participationRequestDtoFromEntity(req));
+            } else if (req.getStatus() == RequestStatus.REJECTED) {
+                rejectedList.add(Mapper.participationRequestDtoFromEntity(req));
+            }
+        }
+
         return new EventRequestStatusUpdateResult(confirmedList, rejectedList);
     }
+
 
     private Sort createSort(String sort) {
         if ("VIEWS".equalsIgnoreCase(sort)) {
@@ -503,14 +545,7 @@ public class EventServiceImpl implements EventService {
         }
         return Sort.by(Sort.Direction.ASC, "eventDate");
     }
-    private boolean isAvailable(Event event) {
-        long confirmedRequests = requestRepository.countByEventIdAndStatus(
-                event.getId(),
-                RequestStatus.CONFIRMED
-        );
-        return event.getParticipantLimit() == 0
-                || confirmedRequests < event.getParticipantLimit();
-    }
+
     private boolean hasFilters(List users, List states,
                                List categories, LocalDateTime rangeStart,
                                LocalDateTime rangeEnd) {

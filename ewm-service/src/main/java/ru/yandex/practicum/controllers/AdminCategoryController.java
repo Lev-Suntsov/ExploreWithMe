@@ -3,6 +3,7 @@ package ru.yandex.practicum.controllers;
 import lombok.RequiredArgsConstructor;
 import org.apache.coyote.BadRequestException;
 import org.springframework.http.HttpStatus;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.model.dto.CategoryDto;
 import ru.yandex.practicum.model.dto.NewCategoryDto;
@@ -14,6 +15,7 @@ import javax.validation.constraints.NotNull;
 @RestController
 @RequestMapping("/admin/categories")
 @RequiredArgsConstructor
+@Validated
 public class AdminCategoryController {
 
     private final CategoryService categoryService;

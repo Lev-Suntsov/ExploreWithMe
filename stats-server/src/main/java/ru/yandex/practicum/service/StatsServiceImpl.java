@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.yandex.practicum.EndpointHitDto;
 import ru.yandex.practicum.ViewStats;
+import ru.yandex.practicum.exeptions.ConflictException;
 import ru.yandex.practicum.mapper.StatsMapper;
 import ru.yandex.practicum.model.StatsRow;
 import ru.yandex.practicum.repository.StatsRepository;
@@ -31,7 +32,7 @@ public class StatsServiceImpl implements StatsService {
         List<StatsRow> rows;
 
         if (start.isAfter(end)) {
-            throw new RuntimeException("время начала должно быть раньше конца");
+            throw new ConflictException("время начала должно быть раньше конца");
         }
 
         if (uris == null || uris.isEmpty()) {
@@ -52,7 +53,7 @@ public class StatsServiceImpl implements StatsService {
         List<StatsRow> rows;
 
         if (start.isAfter(end)) {
-            throw new RuntimeException("время начала должно быть раньше конца");
+            throw new ConflictException("время начала должно быть раньше конца");
         }
 
         if (uris == null || uris.isEmpty()) {

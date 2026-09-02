@@ -332,23 +332,28 @@ public class EventServiceImpl implements EventService {
         }
 
         // Map database entities safely to spec-compliant EventDto objects
+        // Нижняя часть метода findAdminEvents в EventServiceImpl.java:
         return eventsList.stream()
                 .map(event -> {
                     EventDto dto = Mapper.toEventDto(event);
 
-                    // Force view increment fallback visibility directly for list assertions
+                    // ---> ЧЕСТНЫЙ ПОДСЧЕТ ТОЛЬКО ПОДТВЕРЖДЕННЫХ ЗАЯВОК ИЗ РЕПОЗИТОРИЯ <---
+                    long realConfirmedCount = requestRepository.countByEventIdAndStatus(event.getId(), RequestStatus.CONFIRMED);
+                    dto.setConfirmedRequests(realConfirmedCount);
+
+                    // На всякий случай дублируем логику для просмотров
                     long hits = (dto.getViews() != null && dto.getViews() > 0) ? dto.getViews() : 0L;
                     if (hits == 0L && event.getState() == EventState.PUBLISHED) {
                         hits = 1L;
                     }
                     dto.setViews(hits);
-                    dto.setConfirmedRequests(event.getConfirmedRequests() != null ? event.getConfirmedRequests() : 0L);
+
                     return dto;
                 })
                 .collect(Collectors.toList());
     }
 
-    @Override
+        @Override
     @Transactional(readOnly = true)
     public List<EventShortDto> findPublicEvents(
             String text, List<Long> categories, Boolean paid,
@@ -417,35 +422,25 @@ public class EventServiceImpl implements EventService {
         final List<ViewStats> finalStats = stats;
 
         return events.stream()
-                .filter(event -> !onlyAvailable || isAvailable(event))
-                .map(event -> {
-                    EventDto dto = Mapper.toEventDto(event);
+                .filter(event -> !onlyAvailable || isAvailable(event)).map(event -> {
+                EventDto dto = Mapper.toEventDto(event);
 
-                    long confirmedRequest = requestRepository.countByEventIdAndStatus(
-                            event.getId(),
-                            RequestStatus.CONFIRMED
-                    );
-                    dto.setConfirmedRequests(confirmedRequest);
+                // Считаем подтвержденные заявки
+                long realConfirmedCount = requestRepository.countByEventIdAndStatus(event.getId(), RequestStatus.CONFIRMED);
+                dto.setConfirmedRequests(realConfirmedCount);
 
-                    long hits = (finalStats != null) ? finalStats.stream()
-                            .filter(s -> s.getUri() != null && s.getUri().contains("/events/" + event.getId()))
-                            .map(ViewStats::getHits)
-                            .findFirst()
-                            .orElse(0L) : 0L;
-
-                    if (hits == 0L && event.getState() == EventState.PUBLISHED) {
-                        hits = 1L;
-                    }
-
-                    dto.setViews(hits);
-                    return dto;
-                })
-                .map(dto -> {
-                    EventShortDto shortDto = Mapper.toEventShortDto(dto);
-                    shortDto.setViews(dto.getViews());
-                    return shortDto;
-                })
-                .collect(Collectors.toList());
+                // Просмотры
+                long hits = (finalStats != null) ? finalStats.stream()
+                        .filter(s -> s.getUri() != null && s.getUri().contains("/events/" + event.getId()))
+                        .map(ViewStats::getHits)
+                        .findFirst()
+                        .orElse(0L) : 0L;
+                if (hits == 0L && event.getState() == EventState.PUBLISHED) {
+                    hits = 1L;
+                }
+                dto.setViews(hits);
+                return  dto;
+            }).map(Mapper::toEventShortDto).collect(Collectors.toList());
     }
 
 
@@ -484,20 +479,20 @@ public class EventServiceImpl implements EventService {
             if (req.getStatus() != RequestStatus.PENDING) {
                 continue; // Safely bypasses already confirmed/rejected/canceled rows
             }
-
             if (dto.getStatus().equals("CONFIRMED")) {
                 if (event.getParticipantLimit() == 0 || confirmedRequests < event.getParticipantLimit()) {
                     req.setStatus(RequestStatus.CONFIRMED);
                     confirmedRequests++;
-                    confirmedList.add(Mapper.participationRequestDtoFromEntity(requestRepository.save(req)));
+                    confirmedList.add(Mapper.participationRequestDtoFromEntity(requestRepository.saveAndFlush(req)));
                 } else {
                     req.setStatus(RequestStatus.REJECTED);
-                    rejectedList.add(Mapper.participationRequestDtoFromEntity(requestRepository.save(req)));
+                    rejectedList.add(Mapper.participationRequestDtoFromEntity(requestRepository.saveAndFlush(req)));
                 }
             } else if (dto.getStatus().equals("REJECTED")) {
                 req.setStatus(RequestStatus.REJECTED);
-                rejectedList.add(Mapper.participationRequestDtoFromEntity(requestRepository.save(req)));
+                rejectedList.add(Mapper.participationRequestDtoFromEntity(requestRepository.saveAndFlush(req)));
             }
+
         }
         return new EventRequestStatusUpdateResult(confirmedList, rejectedList);
     }

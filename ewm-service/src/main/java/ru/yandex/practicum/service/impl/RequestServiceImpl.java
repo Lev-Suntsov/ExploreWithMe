@@ -148,6 +148,7 @@ public class RequestServiceImpl implements RequestService {
         // 4. Найти все заявки по id из requestIds
         List<ParticipationRequest> requests = requestRepository.findAllById(dto.getRequestIds());
 
+
         // 5. Проверить, что все заявки относятся к этому событию
         for (ParticipationRequest request : requests) {
             if (!request.getEvent().getId().equals(eventId)) {

@@ -125,66 +125,63 @@ public class RequestServiceImpl implements RequestService {
     }
 
     @Override
+    @Transactional
     public EventRequestStatusUpdateResult changeRequestStatus(
             Long userId,
             Long eventId,
             EventRequestStatusUpdateRequest dto
     ) throws BadRequestException {
-        // 1. Проверить, что событие существует
         Event event = eventRepository.findById(eventId)
                 .orElseThrow(() -> new NotFoundException("Event with id=" + eventId + " was not found"));
 
-        // 2. Проверить, что userId — владелец события
         if (!event.getInitiator().getId().equals(userId)) {
             throw new NotFoundException("Event with id=" + eventId + " was not found");
         }
 
-        // 3. Проверить, что статус заявки имеет допустимое значение
         RequestStatus status = dto.getStatus();
         if (status != RequestStatus.CONFIRMED && status != RequestStatus.REJECTED) {
             throw new BadRequestException("Invalid request status");
         }
 
-        // 4. Найти все заявки по id из requestIds
         List<ParticipationRequest> requests = requestRepository.findAllById(dto.getRequestIds());
 
-
-        // 5. Проверить, что все заявки относятся к этому событию
         for (ParticipationRequest request : requests) {
             if (!request.getEvent().getId().equals(eventId)) {
                 throw new NotFoundException("Request with id=" + request.getId() + " does not belong to event " + eventId);
             }
-        }
-
-        // 6. Если статус CONFIRMED, проверить лимит участников
-        if (status == RequestStatus.CONFIRMED) {
-            int confirmedCount = requestRepository.findByEventIdAndStatus(eventId, RequestStatus.CONFIRMED).size();
-            int participantLimit = event.getParticipantLimit();
-
-            // participantLimit == 0 означает безлимитное участие
-            if (participantLimit > 0 && confirmedCount + requests.size() > participantLimit) {
-                throw new ConflictException("The participant limit has been reached");
+            if (request.getStatus() != RequestStatus.PENDING) {
+                throw new ConflictException("Request must have status PENDING");
             }
         }
 
-        // 7. Обновить статус заявок
+        long confirmedCount = requestRepository.countByEvent_IdAndStatus(eventId, RequestStatus.CONFIRMED);
+        int participantLimit = event.getParticipantLimit();
+
+        if (participantLimit > 0 && confirmedCount >= participantLimit && status == RequestStatus.CONFIRMED) {
+            throw new ConflictException("The participant limit has been reached");
+        }
+
         List<ParticipationRequest> confirmedRequests = new ArrayList<>();
         List<ParticipationRequest> rejectedRequests = new ArrayList<>();
 
         for (ParticipationRequest request : requests) {
-            // Можно менять только заявки в статусе PENDING
-            if (request.getStatus() != RequestStatus.PENDING) {
-                throw new ConflictException("Request must have status PENDING");
-            }
-
-            request.setStatus(status);
-            requestRepository.save(request);
-
-            if (status == RequestStatus.CONFIRMED) {
-                confirmedRequests.add(request);
-            } else {
+            if (status == RequestStatus.REJECTED) {
+                request.setStatus(RequestStatus.REJECTED);
                 rejectedRequests.add(request);
+            } else {
+                if (participantLimit == 0 || confirmedCount < participantLimit) {
+                    request.setStatus(RequestStatus.CONFIRMED);
+                    confirmedCount++;
+                    confirmedRequests.add(request);
+                } else {
+                    request.setStatus(RequestStatus.REJECTED);
+                    rejectedRequests.add(request);
+                }
             }
+        }
+
+        if (!requests.isEmpty()) {
+            requestRepository.saveAllAndFlush(requests);
         }
 
         EventRequestStatusUpdateResult result = new EventRequestStatusUpdateResult();
@@ -197,4 +194,5 @@ public class RequestServiceImpl implements RequestService {
 
         return result;
     }
+
 }

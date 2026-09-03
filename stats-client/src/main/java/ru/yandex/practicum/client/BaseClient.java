@@ -21,9 +21,9 @@ public abstract class BaseClient {
     }
 
     protected URI buildUri(String path,
-                           String start,
-                           String end,
-                           List<String> uris) {
+                                  String start,
+                                  String end,
+                                  List<String> uris) {
 
         UriComponentsBuilder builder =
                 UriComponentsBuilder

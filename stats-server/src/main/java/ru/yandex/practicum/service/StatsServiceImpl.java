@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.yandex.practicum.EndpointHitDto;
 import ru.yandex.practicum.ViewStats;
+import ru.yandex.practicum.exeptions.ConflictException;
 import ru.yandex.practicum.mapper.StatsMapper;
 import ru.yandex.practicum.model.StatsRow;
 import ru.yandex.practicum.repository.StatsRepository;
@@ -30,6 +31,10 @@ public class StatsServiceImpl implements StatsService {
                                         List<String> uris) {
         List<StatsRow> rows;
 
+        if (start.isAfter(end)) {
+            throw new ConflictException("время начала должно быть раньше конца");
+        }
+
         if (uris == null || uris.isEmpty()) {
             rows = repository.findAllStatsWithoutUris(start, end);
         } else {
@@ -46,6 +51,10 @@ public class StatsServiceImpl implements StatsService {
                                            LocalDateTime end,
                                            List<String> uris) {
         List<StatsRow> rows;
+
+        if (start.isAfter(end)) {
+            throw new ConflictException("время начала должно быть раньше конца");
+        }
 
         if (uris == null || uris.isEmpty()) {
             rows = repository.findUniqueStatsWithoutUris(start, end);

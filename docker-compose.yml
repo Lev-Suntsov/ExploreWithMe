@@ -15,9 +15,7 @@ services:
       retries: 10
 
   stats-server:
-    build:
-      context: ./stats-server
-      dockerfile: Dockerfile
+    build: ./stats-server  # Упрощено до обычной строки
     container_name: stats-server
     depends_on:
       stats-db:
@@ -45,9 +43,7 @@ services:
       retries: 10
 
   ewm-service:
-    build:
-      context: ./evm-service
-      dockerfile: Dockerfile
+    build: ./ewm-service  # Исправлено на ewm-service (или evm-service, в зависимости от имени вашей папки)
     container_name: ewm-service
     depends_on:
       ewm-db:
@@ -61,6 +57,6 @@ services:
       SPRING_DATASOURCE_USERNAME: postgres
       SPRING_DATASOURCE_PASSWORD: diplom
       STATS_SERVER_URL: http://stats-server:9090
-    # ДОБАВЬТЕ ЭТУ СТРОКУ СТРОГО СЮДА:
     command: [ "./wait-for-it.sh", "stats-server:9090", "java", "-jar", "app.jar" ]
+
 

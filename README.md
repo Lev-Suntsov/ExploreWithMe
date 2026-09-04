@@ -1,4 +1,4 @@
 # java-explore-with-me
 Template repository for ExploreWithMe project.
 
-pull-request :: 
+pull-request :: https://github.com/Lev-Suntsov/ExploreWithMe/pull/4

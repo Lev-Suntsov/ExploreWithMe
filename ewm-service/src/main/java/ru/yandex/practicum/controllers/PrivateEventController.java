@@ -16,7 +16,7 @@ import java.util.List;
 import javax.validation.constraints.NotNull;
 
 @RestController
-@RequestMapping("/users/events")
+@RequestMapping("/users/{userId}/events")
 @RequiredArgsConstructor
 @Validated
 public class PrivateEventController {

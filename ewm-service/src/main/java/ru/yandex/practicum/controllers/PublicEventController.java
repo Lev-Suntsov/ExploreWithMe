@@ -29,7 +29,7 @@ public class PublicEventController {
     private final EventServiceImpl eventService;
     private final StatsClient statsClient;
 
-    @GetMapping("/{")
+    @GetMapping
     public List<EventShortDto> findEvents(
             @PathVariable(required = false) String text,
             @PathVariable(required = false) List<Long> categories,

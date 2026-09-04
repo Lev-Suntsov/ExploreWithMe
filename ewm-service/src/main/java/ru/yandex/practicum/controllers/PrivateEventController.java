@@ -26,7 +26,7 @@ public class PrivateEventController {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public EventDto addEvent(
-            @NotNull(message = "id не может быть пустым") @RequestParam(name = "X-Sharer-User-Id") Long userId,
+            @NotNull(message = "id не может быть пустым") @PathVariable Long userId,
             @RequestBody @Valid NewEventDto dto
     ) throws BadRequestException {
         return eventService.createEvent(userId, dto);

@@ -31,11 +31,11 @@ public class PublicEventController {
 
     @GetMapping
     public List<EventShortDto> findEvents(
-            @PathVariable(required = false) String text,
-            @PathVariable(required = false) List<Long> categories,
-            @PathVariable(required = false) Boolean paid,
+            @RequestParam(required = false) String text,
+            @RequestParam(required = false) List<Long> categories,
+            @RequestParam(required = false) Boolean paid,
 
-            @PathVariable(required = false)
+            @RequestParam(required = false)
             @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
             LocalDateTime rangeStart,
 

@@ -58,5 +58,8 @@ services:
       SPRING_DATASOURCE_PASSWORD: diplom
       STATS_SERVER_URL: http://stats-server:9090
     command: [ "./wait-for-it.sh", "stats-server:9090", "java", "-jar", "app.jar" ]
+    volumes:
+      - ./ewm-service/postman:/app/postman
+      - ./ewm-service/tests:/app/tests
 
 

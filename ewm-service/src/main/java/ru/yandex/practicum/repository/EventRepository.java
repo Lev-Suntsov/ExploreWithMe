@@ -7,7 +7,6 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import ru.yandex.practicum.model.Event;
-import ru.yandex.practicum.model.RequestStatus;
 import ru.yandex.practicum.model.state.EventState;
 
 import java.time.LocalDateTime;

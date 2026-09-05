@@ -4,6 +4,8 @@ import ru.yandex.practicum.model.state.EventState;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "events")
@@ -59,6 +61,17 @@ public class Event {
 
     @Transient
     private Long confirmedRequests = 0L;
+
+    @OneToMany(mappedBy = "event", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<Comment> comments = new ArrayList<>();
+
+    public List<Comment> getComment() {
+        return comments;
+    }
+
+    public void setComment(List<Comment> comments) {
+        this.comments = comments;
+    }
 
     public Long getId() {
         return id;

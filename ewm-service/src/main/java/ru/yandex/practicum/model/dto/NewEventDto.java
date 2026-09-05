@@ -13,7 +13,6 @@ import java.time.LocalDateTime;
 @Data
 public class NewEventDto {
 
-    @NotNull(message = "category не может быть пустым")
     private Long category;
 
     @NotNull(message = "Нужно указать место проведения")

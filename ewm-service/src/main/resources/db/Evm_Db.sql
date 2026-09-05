@@ -70,3 +70,17 @@ CREATE TABLE IF NOT EXISTS compilation_events (
     CONSTRAINT fk_compilations FOREIGN KEY (compilation_id) REFERENCES compilations(id) ON DELETE CASCADE,
     CONSTRAINT fk_events FOREIGN KEY (event_id) REFERENCES events(id) ON DELETE CASCADE
 );
+
+CREATE TABLE IF NOT EXISTS comments (
+    id          BIGSERIAL PRIMARY KEY,
+    text        VARCHAR(2000) NOT NULL,
+    commentator BIGINT NOT NULL,
+    event       BIGINT NOT NULL,
+    created_on  TIMESTAMP WITHOUT TIME ZONE DEFAULT CURRENT_TIMESTAMP NOT NULL, -- Highly recommended tracking attribute
+
+    CONSTRAINT fk_comments_to_users FOREIGN KEY (commentator) REFERENCES users (id) ON DELETE CASCADE,
+    CONSTRAINT fk_comments_to_events FOREIGN KEY (event) REFERENCES events (id) ON DELETE CASCADE
+);
+
+CREATE INDEX IF NOT EXISTS idx_comments_event_id ON comments (event);
+CREATE INDEX IF NOT EXISTS idx_comments_commentator_id ON comments (commentator);

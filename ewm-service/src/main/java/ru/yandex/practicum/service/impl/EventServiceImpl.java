@@ -60,12 +60,11 @@ public class EventServiceImpl implements EventService {
 
         User initiator = userRepository.findById(userId)
                 .orElseThrow(() -> new NotFoundException("Пользователь с id=" + userId + " не найден"));
-        Category category = categoryRepository.findById(dto.getCategory())
-                .orElseThrow(() -> new NotFoundException("Категория с id=" + dto.getCategory() + " не найдена"));
 
         Event event = new Event();
+        event.setCategory(categoryRepository.findById(dto.getCategory())
+                .orElseThrow(() -> new NotFoundException("Категория с id=" + dto.getCategory() + " не найдена")));
         event.setInitiator(initiator);
-        event.setCategory(category);
         event.setTitle(dto.getTitle());
         event.setAnnotation(dto.getAnnotation());
         event.setDescription(dto.getDescription());

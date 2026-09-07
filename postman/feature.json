@@ -18,11 +18,7 @@
               "\r",
               "pm.test(\"Пользователь создан\", function () {\r",
               "    pm.expect(pm.response.code).to.be.oneOf([200, 201]);\r",
-              "    pm.expect(responseData.id).to.exist;\r",
-              "});\r",
-              "\r",
-              "pm.environment.set(\"current_user_id\", String(responseData.id));\r",
-              "console.log(\"Saved User ID:\", responseData.id);"
+              "    pmole.log(\"Saved User ID:\", responseData.id);"
             ],
             "type": "text/javascript",
             "packages": {},
@@ -57,6 +53,34 @@
       "response": []
     },
     {
+      "name": "post category",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"name\": \"Category Test\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "localhost:8080/admin/categories",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "admin",
+            "categories"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
       "name": "post Event",
       "event": [
         {
@@ -70,8 +94,7 @@
               "    pm.expect(responseData.id).to.exist;\r",
               "});\r",
               "\r",
-              "pm.environment.set(\"current_event_id\", String(responseData.id));\r",
-              "console.log(\"Saved Event ID:\", responseData.id)"
+              ""
             ],
             "type": "text/javascript",
             "packages": {},
@@ -90,7 +113,7 @@
         ],
         "body": {
           "mode": "raw",
-          "raw": "{\r\n    \"category\": {{current_caregory_id}},\r\n  \"title\": \"Event for comment testing\",\r\n  \"annotation\": \"This annotation contains more than twenty characters.\",\r\n  \"description\": \"This is a sufficiently detailed description of the test event created before adding a comment.\",\r\n  \"eventDate\": \"2026-10-10 12:00:00\",\r\n  \"location\": {\r\n    \"lat\": 55.7558,\r\n    \"lon\": 37.6173\r\n  },\r\n  \"paid\": false,\r\n  \"participantLimit\": 10,\r\n  \"requestModeration\": true\r\n}",
+          "raw": "{\r\n    \"category\": \"3\",\r\n  \"title\": \"Event for comment testing\",\r\n  \"annotation\": \"This annotation contains more than twenty characters.\",\r\n  \"description\": \"This is a sufficiently detailed description of the test event created before adding a comment.\",\r\n  \"eventDate\": \"2026-10-10 12:00:00\",\r\n  \"location\": {\r\n    \"lat\": 55.7558,\r\n    \"lon\": 37.6173\r\n  },\r\n  \"paid\": false,\r\n  \"participantLimit\": 10,\r\n  \"requestModeration\": true\r\n}",
           "options": {
             "raw": {
               "language": "json"
@@ -143,11 +166,7 @@
           "script": {
             "exec": [
               "const responseData = pm.response.json();\r",
-              "if (responseData && responseData.id) {\r",
-              "    pm.environment.set(\"current_user_id\", responseData.id);\r",
-              "    console.log(\"Saved User ID: \" + responseData.id);\r",
-              "}\r",
-              "pm.environment.set(\"current_comment_id\", String(responseData.id));\r",
+              " \r",
               "pm.test(\"Комментарий созданн\", function (){\r",
               "pm.response.to.be.ok;\r",
               "});"
@@ -371,7 +390,7 @@
         "method": "DELETE",
         "header": [],
         "url": {
-          "raw": "http://localhost:8080/events/comments?id=11",
+          "raw": "http://localhost:8080/events/comments?id=13",
           "protocol": "http",
           "host": [
             "localhost"
@@ -384,18 +403,10 @@
           "query": [
             {
               "key": "id",
-              "value": "11"
+              "value": "13"
             }
           ]
         }
-      },
-      "response": []
-    },
-    {
-      "name": "post category",
-      "request": {
-        "method": "GET",
-        "header": []
       },
       "response": []
     }

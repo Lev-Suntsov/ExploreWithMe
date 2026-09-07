@@ -18,7 +18,8 @@
               "\r",
               "pm.test(\"Пользователь создан\", function () {\r",
               "    pm.expect(pm.response.code).to.be.oneOf([200, 201]);\r",
-              "    pmole.log(\"Saved User ID:\", responseData.id);\r",
+              "   var jsonData = pm.response.json();\r",
+              "pm.collectionVariables.set(\"current_user_id\", jsonData.id);\r",
               "});"
             ],
             "type": "text/javascript",
@@ -55,12 +56,27 @@
     },
     {
       "name": "post category",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "var jsonData = pm.response.json();\r",
+              "pm.collectionVariables.set(\"current_category_id\", jsonData.id);\r",
+              ""
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ],
       "request": {
         "method": "POST",
         "header": [],
         "body": {
           "mode": "raw",
-          "raw": "{\r\n  \"name\": \"Category Test\"\r\n}",
+          "raw": "{\r\n  \"name\": \"Category Test4\"\r\n}",
           "options": {
             "raw": {
               "language": "json"
@@ -94,6 +110,9 @@
               "    pm.expect(pm.response.code).to.be.oneOf([200, 201]);\r",
               "    pm.expect(responseData.id).to.exist;\r",
               "});\r",
+              "var jsonData = pm.response.json();\r",
+              "pm.collectionVariables.set(\"current_event_id\", jsonData.id);\r",
+              "\r",
               "\r",
               ""
             ],
@@ -114,7 +133,7 @@
         ],
         "body": {
           "mode": "raw",
-          "raw": "{\r\n    \"category\": \"2\",\r\n  \"title\": \"Event for comment testing\",\r\n  \"annotation\": \"This annotation contains more than twenty characters.\",\r\n  \"description\": \"This is a sufficiently detailed description of the test event created before adding a comment.\",\r\n  \"eventDate\": \"2026-10-10 12:00:00\",\r\n  \"location\": {\r\n    \"lat\": 55.7558,\r\n    \"lon\": 37.6173\r\n  },\r\n  \"paid\": false,\r\n  \"participantLimit\": 10,\r\n  \"requestModeration\": true\r\n}",
+          "raw": "{\r\n  \"category\": \"{{current_category_id}}\",\r\n  \"title\": \"Event for comment testing\",\r\n  \"annotation\": \"This annotation contains more than twenty characters.\",\r\n  \"description\": \"This is a sufficiently detailed description of the test event created before adding a comment.\",\r\n  \"eventDate\": \"2026-10-10 12:00:00\",\r\n  \"location\": {\r\n    \"lat\": 55.7558,\r\n    \"lon\": 37.6173\r\n  },\r\n  \"paid\": false,\r\n  \"participantLimit\": 10,\r\n  \"requestModeration\": true\r\n}",
           "options": {
             "raw": {
               "language": "json"
@@ -122,7 +141,7 @@
           }
         },
         "url": {
-          "raw": "http://localhost:8080/users/4/events",
+          "raw": "http://localhost:8080/users/{{current_user_id}}/events",
           "protocol": "http",
           "host": [
             "localhost"
@@ -130,7 +149,7 @@
           "port": "8080",
           "path": [
             "users",
-            "4",
+            "{{current_user_id}}",
             "events"
           ]
         }
@@ -175,12 +194,12 @@
         "header": [
           {
             "key": "X-Sharer-User-Id",
-            "value": "6",
+            "value": "{{current_user_id}}",
             "type": "text"
           },
           {
             "key": "eventId",
-            "value": "12",
+            "value": "{{current_event_id}}",
             "type": "text"
           },
           {
@@ -220,7 +239,7 @@
           "script": {
             "exec": [
               "pm.test(\"Комментарий получен\", function () {\r",
-              "    pm.expect(pm.response.json().id).to.eql(10);\r",
+              "    pm.expect(pm.response.json().id).to.eql(17);\r",
               "});"
             ],
             "type": "text/javascript",
@@ -233,7 +252,7 @@
         "method": "GET",
         "header": [],
         "url": {
-          "raw": "http://localhost:8080/events/comments/14",
+          "raw": "http://localhost:8080/events/comments/{{current_comment_id}}",
           "protocol": "http",
           "host": [
             "localhost"
@@ -242,7 +261,7 @@
           "path": [
             "events",
             "comments",
-            "14"
+            "{{current_comment_id}}"
           ]
         }
       },
@@ -271,7 +290,7 @@
               "\r",
               "pm.test(\"Все комментарии относятся к пользователю 6\", function () {\r",
               "    comments.forEach(function (comment) {\r",
-              "        pm.expect(comment.commentator.id).to.eql(6);\r",
+              "        pm.expect(comment.commentator.id).to.eql(10);\r",
               "    });\r",
               "});\r",
               ""
@@ -286,7 +305,7 @@
         "method": "GET",
         "header": [],
         "url": {
-          "raw": "http://localhost:8080/events/comments/byUser/6",
+          "raw": "http://localhost:8080/events/comments/byUser/{{current_user_id}}",
           "protocol": "http",
           "host": [
             "localhost"
@@ -296,7 +315,7 @@
             "events",
             "comments",
             "byUser",
-            "6"
+            "{{current_user_id}}"
           ]
         }
       },
@@ -323,15 +342,15 @@
               "    pm.expect(comments.length).to.be.greaterThan(0);\r",
               "});\r",
               "\r",
-              "pm.test(\"Все комментарии относятся к событию 12\", function () {\r",
+              "pm.test(\"Все комментарии относятся к событию 13\", function () {\r",
               "    comments.forEach(function (comment) {\r",
-              "        pm.expect(comment.event.id).to.eql(12);\r",
+              "        pm.expect(comment.event.id).to.eql(13);\r",
               "    });\r",
               "});\r",
               "\r",
-              "pm.test(\"Все комментарии относятся к категории 2\", function () {\r",
+              "pm.test(\"Все комментарии относятся к категории 5\", function () {\r",
               "    comments.forEach(function (comment) {\r",
-              "        pm.expect(comment.event.category.id).to.eql(2);\r",
+              "        pm.expect(comment.event.category.id).to.eql(5);\r",
               "    });\r",
               "});"
             ],
@@ -345,7 +364,7 @@
         "method": "GET",
         "header": [],
         "url": {
-          "raw": "http://localhost:8080/events/comments/byEvent/12",
+          "raw": "http://localhost:8080/events/comments/byEvent/{{current_event_id}}",
           "protocol": "http",
           "host": [
             "localhost"
@@ -355,7 +374,7 @@
             "events",
             "comments",
             "byEvent",
-            "12"
+            "{{current_event_id}}"
           ]
         }
       },
@@ -383,7 +402,7 @@
         "method": "DELETE",
         "header": [],
         "url": {
-          "raw": "http://localhost:8080/events/comments?id=13",
+          "raw": "http://localhost:8080/events/comments?id={{current_comment_id}}",
           "protocol": "http",
           "host": [
             "localhost"
@@ -396,12 +415,54 @@
           "query": [
             {
               "key": "id",
-              "value": "13"
+              "value": "{{current_comment_id}}"
             }
           ]
         }
       },
       "response": []
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "packages": {},
+        "requests": {},
+        "exec": [
+          ""
+        ]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "packages": {},
+        "requests": {},
+        "exec": [
+          ""
+        ]
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "current_category_id",
+      "value": ""
+    },
+    {
+      "key": "current_user_id",
+      "value": ""
+    },
+    {
+      "key": "current_event_id",
+      "value": ""
+    },
+    {
+      "key": "current_comment_id",
+      "value": ""
     }
   ]
 }

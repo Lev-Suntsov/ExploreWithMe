@@ -175,7 +175,7 @@
         "header": [
           {
             "key": "X-Sharer-User-Id",
-            "value": "3",
+            "value": "6",
             "type": "text"
           },
           {
@@ -233,7 +233,7 @@
         "method": "GET",
         "header": [],
         "url": {
-          "raw": "http://localhost:8080/events/comments/10",
+          "raw": "http://localhost:8080/events/comments/14",
           "protocol": "http",
           "host": [
             "localhost"
@@ -242,7 +242,7 @@
           "path": [
             "events",
             "comments",
-            "10"
+            "14"
           ]
         }
       },
@@ -269,9 +269,9 @@
               "    pm.expect(comments.length).to.be.greaterThan(0);\r",
               "});\r",
               "\r",
-              "pm.test(\"Все комментарии относятся к пользователю 2\", function () {\r",
+              "pm.test(\"Все комментарии относятся к пользователю 6\", function () {\r",
               "    comments.forEach(function (comment) {\r",
-              "        pm.expect(comment.commentator.id).to.eql(2);\r",
+              "        pm.expect(comment.commentator.id).to.eql(6);\r",
               "    });\r",
               "});\r",
               ""
@@ -286,7 +286,7 @@
         "method": "GET",
         "header": [],
         "url": {
-          "raw": "http://localhost:8080/events/comments/byUser/2",
+          "raw": "http://localhost:8080/events/comments/byUser/6",
           "protocol": "http",
           "host": [
             "localhost"
@@ -296,7 +296,7 @@
             "events",
             "comments",
             "byUser",
-            "2"
+            "6"
           ]
         }
       },

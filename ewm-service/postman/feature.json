@@ -114,7 +114,7 @@
         ],
         "body": {
           "mode": "raw",
-          "raw": "{\r\n    \"category\": \"3\",\r\n  \"title\": \"Event for comment testing\",\r\n  \"annotation\": \"This annotation contains more than twenty characters.\",\r\n  \"description\": \"This is a sufficiently detailed description of the test event created before adding a comment.\",\r\n  \"eventDate\": \"2026-10-10 12:00:00\",\r\n  \"location\": {\r\n    \"lat\": 55.7558,\r\n    \"lon\": 37.6173\r\n  },\r\n  \"paid\": false,\r\n  \"participantLimit\": 10,\r\n  \"requestModeration\": true\r\n}",
+          "raw": "{\r\n    \"category\": \"2\",\r\n  \"title\": \"Event for comment testing\",\r\n  \"annotation\": \"This annotation contains more than twenty characters.\",\r\n  \"description\": \"This is a sufficiently detailed description of the test event created before adding a comment.\",\r\n  \"eventDate\": \"2026-10-10 12:00:00\",\r\n  \"location\": {\r\n    \"lat\": 55.7558,\r\n    \"lon\": 37.6173\r\n  },\r\n  \"paid\": false,\r\n  \"participantLimit\": 10,\r\n  \"requestModeration\": true\r\n}",
           "options": {
             "raw": {
               "language": "json"
@@ -146,12 +146,8 @@
             "exec": [
               "\r",
               "\r",
-              "const body = {\r",
-              "    event: Number(eventId),\r",
-              "    text: \"Test comment\"\r",
-              "};\r",
               "\r",
-              "pm.environment.set(\"commentBody\", JSON.stringify(body));"
+              ""
             ],
             "type": "text/javascript",
             "packages": {},
@@ -184,7 +180,7 @@
           },
           {
             "key": "eventId",
-            "value": "5",
+            "value": "12",
             "type": "text"
           },
           {
@@ -327,9 +323,9 @@
               "    pm.expect(comments.length).to.be.greaterThan(0);\r",
               "});\r",
               "\r",
-              "pm.test(\"Все комментарии относятся к событию 5\", function () {\r",
+              "pm.test(\"Все комментарии относятся к событию 12\", function () {\r",
               "    comments.forEach(function (comment) {\r",
-              "        pm.expect(comment.event.id).to.eql(5);\r",
+              "        pm.expect(comment.event.id).to.eql(12);\r",
               "    });\r",
               "});\r",
               "\r",
@@ -349,7 +345,7 @@
         "method": "GET",
         "header": [],
         "url": {
-          "raw": "http://localhost:8080/events/comments/byEvent/5",
+          "raw": "http://localhost:8080/events/comments/byEvent/12",
           "protocol": "http",
           "host": [
             "localhost"
@@ -359,7 +355,7 @@
             "events",
             "comments",
             "byEvent",
-            "5"
+            "12"
           ]
         }
       },

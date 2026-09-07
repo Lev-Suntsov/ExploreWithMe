@@ -2,3 +2,5 @@
 Template repository for ExploreWithMe project.
 
 pull-request :: https://github.com/Lev-Suntsov/ExploreWithMe/pull/4
+
+progect:: https://github.com/Lev-Suntsov/ExploreWithMe

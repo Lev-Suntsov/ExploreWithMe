@@ -239,7 +239,7 @@
           "script": {
             "exec": [
               "pm.test(\"Комментарий получен\", function () {\r",
-              "    pm.expect(pm.response.json().id).to.eql(17);\r",
+              "    pm.expect(pm.response.json().id).to.eql({current_comment_id});\r",
               "});"
             ],
             "type": "text/javascript",
@@ -288,9 +288,9 @@
               "    pm.expect(comments.length).to.be.greaterThan(0);\r",
               "});\r",
               "\r",
-              "pm.test(\"Все комментарии относятся к пользователю 6\", function () {\r",
+              "pm.test(\"Все комментарии относятся к пользователю верному\", function () {\r",
               "    comments.forEach(function (comment) {\r",
-              "        pm.expect(comment.commentator.id).to.eql(10);\r",
+              "        pm.expect(comment.commentator.id).to.eql({current_user_id});\r",
               "    });\r",
               "});\r",
               ""
@@ -348,9 +348,9 @@
               "    });\r",
               "});\r",
               "\r",
-              "pm.test(\"Все комментарии относятся к категории 5\", function () {\r",
+              "pm.test(\"Все комментарии относятся к верной категории\", function () {\r",
               "    comments.forEach(function (comment) {\r",
-              "        pm.expect(comment.event.category.id).to.eql(5);\r",
+              "        pm.expect(comment.event.category.id).to.eql({current_event_id})\r",
               "    });\r",
               "});"
             ],

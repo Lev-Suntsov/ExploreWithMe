@@ -18,7 +18,8 @@
               "\r",
               "pm.test(\"Пользователь создан\", function () {\r",
               "    pm.expect(pm.response.code).to.be.oneOf([200, 201]);\r",
-              "    pmole.log(\"Saved User ID:\", responseData.id);"
+              "    pmole.log(\"Saved User ID:\", responseData.id);\r",
+              "});"
             ],
             "type": "text/javascript",
             "packages": {},
@@ -143,11 +144,7 @@
           "listen": "prerequest",
           "script": {
             "exec": [
-              "const eventId = pm.environment.get(\"current_event_id\");\r",
               "\r",
-              "if (!eventId) {\r",
-              "    throw new Error(\"current_event_id is not set in environment\");\r",
-              "}\r",
               "\r",
               "const body = {\r",
               "    event: Number(eventId),\r",

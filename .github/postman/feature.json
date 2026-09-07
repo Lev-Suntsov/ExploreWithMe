@@ -8,7 +8,7 @@
   },
   "item": [
     {
-      "name": "Post Comment",
+      "name": "post User",
       "request": {
         "method": "GET",
         "header": []
@@ -33,15 +33,7 @@
       "response": []
     },
     {
-      "name": "post User",
-      "request": {
-        "method": "GET",
-        "header": []
-      },
-      "response": []
-    },
-    {
-      "name": "post Category",
+      "name": "Post Comment",
       "request": {
         "method": "GET",
         "header": []
@@ -57,14 +49,6 @@
       "response": []
     },
     {
-      "name": "getByEvents",
-      "request": {
-        "method": "GET",
-        "header": []
-      },
-      "response": []
-    },
-    {
       "name": "getByUser",
       "request": {
         "method": "GET",
@@ -73,7 +57,7 @@
       "response": []
     },
     {
-      "name": "DeleteComment",
+      "name": "getByEvents",
       "request": {
         "method": "GET",
         "header": []
@@ -81,7 +65,7 @@
       "response": []
     },
     {
-      "name": "UpdateEvent",
+      "name": "DeleteComment",
       "request": {
         "method": "GET",
         "header": []

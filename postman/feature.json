@@ -181,7 +181,9 @@
               " \r",
               "pm.test(\"Комментарий созданн\", function (){\r",
               "pm.response.to.be.ok;\r",
-              "});"
+              "});\r",
+              " var jsonData = pm.response.json();\r",
+              "pm.collectionVariables.set(\"current_comment_id\", jsonData.id);"
             ],
             "type": "text/javascript",
             "packages": {},
@@ -342,9 +344,9 @@
               "    pm.expect(comments.length).to.be.greaterThan(0);\r",
               "});\r",
               "\r",
-              "pm.test(\"Все комментарии относятся к событию 13\", function () {\r",
+              "pm.test(\"Все комментарии относятся к событию\", function () {\r",
               "    comments.forEach(function (comment) {\r",
-              "        pm.expect(comment.event.id).to.eql(13);\r",
+              "        pm.expect(comment.event.id).to.eql({current_event_id});\r",
               "    });\r",
               "});\r",
               "\r",

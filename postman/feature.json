@@ -9,66 +9,385 @@
   "item": [
     {
       "name": "post User",
-      "request": {
-        "method": "GET",
-        "header": []
-      },
-      "response": []
-    },
-    {
-      "name": "post Event",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "const responseData = pm.response.json();\r",
+              "\r",
+              "pm.test(\"Пользователь создан\", function () {\r",
+              "    pm.expect(pm.response.code).to.be.oneOf([200, 201]);\r",
+              "    pm.expect(responseData.id).to.exist;\r",
+              "});\r",
+              "\r",
+              "pm.environment.set(\"current_user_id\", String(responseData.id));\r",
+              "console.log(\"Saved User ID:\", responseData.id);"
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ],
       "request": {
         "method": "POST",
         "header": [],
         "body": {
           "mode": "raw",
-          "raw": "",
+          "raw": "{\r\n  \"name\": \"Comment Test User\",\r\n  \"email\": \"comment{{$timestamp}}@example.com\"\r\n}",
           "options": {
             "raw": {
               "language": "json"
             }
           }
+        },
+        "url": {
+          "raw": "localhost:8080/admin/users",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "admin",
+            "users"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "post Event",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "const responseData = pm.response.json();\r",
+              "\r",
+              "pm.test(\"Событие создано\", function () {\r",
+              "    pm.expect(pm.response.code).to.be.oneOf([200, 201]);\r",
+              "    pm.expect(responseData.id).to.exist;\r",
+              "});\r",
+              "\r",
+              "pm.environment.set(\"current_event_id\", String(responseData.id));\r",
+              "console.log(\"Saved Event ID:\", responseData.id)"
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "",
+            "value": "",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"category\": {{current_caregory_id}},\r\n  \"title\": \"Event for comment testing\",\r\n  \"annotation\": \"This annotation contains more than twenty characters.\",\r\n  \"description\": \"This is a sufficiently detailed description of the test event created before adding a comment.\",\r\n  \"eventDate\": \"2026-10-10 12:00:00\",\r\n  \"location\": {\r\n    \"lat\": 55.7558,\r\n    \"lon\": 37.6173\r\n  },\r\n  \"paid\": false,\r\n  \"participantLimit\": 10,\r\n  \"requestModeration\": true\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:8080/users/4/events",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "users",
+            "4",
+            "events"
+          ]
         }
       },
       "response": []
     },
     {
       "name": "Post Comment",
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "exec": [
+              "const eventId = pm.environment.get(\"current_event_id\");\r",
+              "\r",
+              "if (!eventId) {\r",
+              "    throw new Error(\"current_event_id is not set in environment\");\r",
+              "}\r",
+              "\r",
+              "const body = {\r",
+              "    event: Number(eventId),\r",
+              "    text: \"Test comment\"\r",
+              "};\r",
+              "\r",
+              "pm.environment.set(\"commentBody\", JSON.stringify(body));"
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        },
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "const responseData = pm.response.json();\r",
+              "if (responseData && responseData.id) {\r",
+              "    pm.environment.set(\"current_user_id\", responseData.id);\r",
+              "    console.log(\"Saved User ID: \" + responseData.id);\r",
+              "}\r",
+              "pm.environment.set(\"current_comment_id\", String(responseData.id));\r",
+              "pm.test(\"Комментарий созданн\", function (){\r",
+              "pm.response.to.be.ok;\r",
+              "});"
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ],
       "request": {
-        "method": "GET",
-        "header": []
+        "method": "POST",
+        "header": [
+          {
+            "key": "X-Sharer-User-Id",
+            "value": "3",
+            "type": "text"
+          },
+          {
+            "key": "eventId",
+            "value": "5",
+            "type": "text"
+          },
+          {
+            "key": "",
+            "value": "",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"text\": \"tetm\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "localhost:8080/events/comments",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "events",
+            "comments"
+          ]
+        }
       },
       "response": []
     },
     {
       "name": "Get Comment",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Комментарий получен\", function () {\r",
+              "    pm.expect(pm.response.json().id).to.eql(10);\r",
+              "});"
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ],
       "request": {
         "method": "GET",
-        "header": []
+        "header": [],
+        "url": {
+          "raw": "http://localhost:8080/events/comments/10",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "events",
+            "comments",
+            "10"
+          ]
+        }
       },
       "response": []
     },
     {
       "name": "getByUser",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "const comments = pm.response.json();\r",
+              "\r",
+              "pm.test(\"Статус ответа — 200\", function () {\r",
+              "    pm.response.to.have.status(200);\r",
+              "});\r",
+              "\r",
+              "pm.test(\"Ответ является массивом\", function () {\r",
+              "    pm.expect(comments).to.be.an(\"array\");\r",
+              "});\r",
+              "\r",
+              "pm.test(\"В ответе есть комментарии\", function () {\r",
+              "    pm.expect(comments.length).to.be.greaterThan(0);\r",
+              "});\r",
+              "\r",
+              "pm.test(\"Все комментарии относятся к пользователю 2\", function () {\r",
+              "    comments.forEach(function (comment) {\r",
+              "        pm.expect(comment.commentator.id).to.eql(2);\r",
+              "    });\r",
+              "});\r",
+              ""
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ],
       "request": {
         "method": "GET",
-        "header": []
+        "header": [],
+        "url": {
+          "raw": "http://localhost:8080/events/comments/byUser/2",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "events",
+            "comments",
+            "byUser",
+            "2"
+          ]
+        }
       },
       "response": []
     },
     {
       "name": "getByEvents",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "const comments = pm.response.json();\r",
+              "\r",
+              "pm.test(\"Статус ответа — 200\", function () {\r",
+              "    pm.response.to.have.status(200);\r",
+              "});\r",
+              "\r",
+              "pm.test(\"Ответ является массивом\", function () {\r",
+              "    pm.expect(comments).to.be.an(\"array\");\r",
+              "});\r",
+              "\r",
+              "pm.test(\"В ответе есть комментарии\", function () {\r",
+              "    pm.expect(comments.length).to.be.greaterThan(0);\r",
+              "});\r",
+              "\r",
+              "pm.test(\"Все комментарии относятся к событию 5\", function () {\r",
+              "    comments.forEach(function (comment) {\r",
+              "        pm.expect(comment.event.id).to.eql(5);\r",
+              "    });\r",
+              "});\r",
+              "\r",
+              "pm.test(\"Все комментарии относятся к категории 2\", function () {\r",
+              "    comments.forEach(function (comment) {\r",
+              "        pm.expect(comment.event.category.id).to.eql(2);\r",
+              "    });\r",
+              "});"
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ],
       "request": {
         "method": "GET",
-        "header": []
+        "header": [],
+        "url": {
+          "raw": "http://localhost:8080/events/comments/byEvent/5",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "events",
+            "comments",
+            "byEvent",
+            "5"
+          ]
+        }
       },
       "response": []
     },
     {
       "name": "DeleteComment",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Статус ответа — 200\", function () {\r",
+              "    pm.response.to.have.status(200);\r",
+              "});\r",
+              ""
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ],
       "request": {
-        "method": "GET",
-        "header": []
+        "method": "DELETE",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:8080/events/comments?id=11",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "events",
+            "comments"
+          ],
+          "query": [
+            {
+              "key": "id",
+              "value": "11"
+            }
+          ]
+        }
       },
       "response": []
     }

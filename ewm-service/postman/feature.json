@@ -390,6 +390,14 @@
         }
       },
       "response": []
+    },
+    {
+      "name": "post category",
+      "request": {
+        "method": "GET",
+        "header": []
+      },
+      "response": []
     }
   ]
 }

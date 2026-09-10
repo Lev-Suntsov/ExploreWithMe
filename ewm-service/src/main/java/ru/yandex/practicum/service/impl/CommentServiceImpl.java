@@ -2,6 +2,7 @@ package ru.yandex.practicum.service.impl;
 
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.yandex.practicum.exeptions.NotFoundException;
 import ru.yandex.practicum.model.Comment;
 import ru.yandex.practicum.model.Event;
@@ -24,6 +25,7 @@ public class CommentServiceImpl implements CommentService {
     private final UserRepository userRepository;
     private final CommentRepository repository;
 
+    @Transactional
     @Override
     public CommentDto postComment(Long eventId, Long userid, CommentDto dto) {
         Event event = eventRepository.findById(eventId).orElseThrow(() -> new NotFoundException("События с id = " +
@@ -65,6 +67,7 @@ public class CommentServiceImpl implements CommentService {
     }
 
     @Override
+    @Transactional
     public void deleteComment(Long commentID) {
         repository.findById(commentID).orElseThrow(() -> new NotFoundException("комментарий с " +
                 "id = " + commentID + " не найден"));

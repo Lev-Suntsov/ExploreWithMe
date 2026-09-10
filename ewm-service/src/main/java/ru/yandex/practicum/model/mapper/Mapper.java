@@ -11,9 +11,9 @@ import java.util.stream.Collectors;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class Mapper {
 
-    public static UserDto fromEntity(User user) {
+    public static User toEntity(UserDto user) {
         if (user == null) return null;
-        UserDto dto = new UserDto();
+        User dto = new User();
         dto.setId(user.getId());
         dto.setEmail(user.getEmail());
         dto.setName(user.getName());
@@ -28,7 +28,7 @@ public class Mapper {
         dto.setCategory(event.getCategory() != null ? toCategoryDto(event.getCategory()) : null);
         dto.setEventDate(event.getEventDate());
         dto.setDescription(event.getDescription());
-        dto.setInitiator(event.getInitiator() != null ? fromEntity(event.getInitiator()) : null);
+        dto.setInitiator(event.getInitiator() != null ? toUserDto(event.getInitiator()) : null);
         dto.setPaid(event.isPaid());
         dto.setLocation(event.getLocation());
         dto.setTitle(event.getTitle());
@@ -135,4 +135,44 @@ public class Mapper {
         return dto;
     }
 
+    public static Comment commentDtoToEntity(CommentDto dto) {
+        Comment comment = new Comment();
+        comment.setId(dto.getId());
+        comment.setCommentator(toEntity(dto.getCommentator()));
+        comment.setText(dto.getText());
+        comment.setEvent(eventDtoToEntity(dto.getEvent()));
+        return comment;
+    }
+
+    public static CommentDto commentEntityToDto(Comment comment) {
+        return new CommentDto(comment.getId(), comment.getText(), toUserDto(comment.getCommentator()), toEventDto(comment.getEvent()));
+    }
+
+    public static Event eventDtoToEntity(EventDto dto){
+        Event event = new Event();
+        event.setId(dto.getId());
+        event.setAnnotation(dto.getAnnotation());
+        event.setCategory(dto.getCategory() != null ? fromCategoryDtoToEntity(dto.getCategory()) : null);
+        event.setEventDate(dto.getEventDate());
+        event.setDescription(dto.getDescription());
+        event.setInitiator(dto.getInitiator() != null ? toEntity(dto.getInitiator()) : null);
+        event.setPaid(dto.isPaid());
+        event.setLocation(dto.getLocation());
+        event.setTitle(dto.getTitle());
+        event.setParticipantLimit(dto.getParticipantLimit());
+        event.setState(dto.getState());
+        event.setRequestModeration(dto.isRequestModeration());
+        event.setCreatedOn(dto.getCreatedOn());
+        event.setPublishedOn(dto.getPublishedOn());
+
+        long currentViews = (dto.getViews() != null) ? dto.getViews() : 0L;
+        if (currentViews == 0L && dto.getState() == ru.yandex.practicum.model.state.EventState.PUBLISHED) {
+            currentViews = 1L;
+        }
+
+        event.setViews(currentViews);
+        event.setConfirmedRequests(dto.getConfirmedRequests() != null ? dto.getConfirmedRequests() : 0L);
+
+        return event;
+    }
 }
